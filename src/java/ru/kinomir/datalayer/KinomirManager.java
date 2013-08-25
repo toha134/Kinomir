@@ -48,7 +48,9 @@ public class KinomirManager {
     private static final String MARK = "MARK";
     private static final String IDPAYMENTMETHOD = "IDPAYMENTMETHOD";
     private static final String AMOUNT = "AMOUNT";
-
+    public static final String BANKTRXID = "BANK_TRX_ID";
+    public static final String PAYATTRIBYTES = "PAY_ATTRIBYTES";
+    
     public static ResultSet getOrderInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
         try {
@@ -67,7 +69,7 @@ public class KinomirManager {
     public static ResultSet addPayment(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
         try {
-            sp = conn.prepareStatement("exec dbo.Wga_AddPayment ?, ?, ?, ?, ?");
+            sp = conn.prepareStatement("exec dbo.Wga_AddPayment ?, ?, ?, ?, ?, ?, ?");
             if (params.get(IDORDER) != null) {
                 sp.setLong(1, Long.parseLong(params.get(IDORDER)));
             }
@@ -87,6 +89,16 @@ public class KinomirManager {
                 sp.setInt(5, Integer.parseInt(params.get(IDCLIENT)));
             } else {
                 sp.setNull(5, java.sql.Types.INTEGER);
+            }
+                        if (params.get(BANKTRXID) != null) {
+                sp.setString(6, params.get(BANKTRXID));
+            } else {
+                sp.setNull(6, java.sql.Types.VARCHAR);
+            }
+            if (params.get(PAYATTRIBYTES) != null) {
+                sp.setString(7, params.get(PAYATTRIBYTES));
+            } else {
+                sp.setNull(7, java.sql.Types.VARCHAR);
             }
             return sp.executeQuery();
         } finally {
