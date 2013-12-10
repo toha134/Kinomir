@@ -4,6 +4,10 @@
  */
 package ru.kinomir.datalayer;
 
+import ru.kinomir.datalayer.dto.OrdersDTO;
+import ru.kinomir.datalayer.dto.LockPlaceDTO;
+import ru.kinomir.datalayer.dto.CreateOrderDTO;
+import ru.kinomir.datalayer.dto.OrderInfoDTO;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.InvalidParameterException;
@@ -16,6 +20,12 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Map;
 import org.apache.log4j.Logger;
+import ru.kinomir.datalayer.dto.AddPaymentResultDTO;
+import ru.kinomir.datalayer.dto.ClientInfoDTO;
+import ru.kinomir.datalayer.dto.SimpleErrorDTO;
+import ru.kinomir.datalayer.dto.SimpleResultDTO;
+import ru.kinomir.processor.DataException;
+import ru.kinomir.tools.sql.SqlUtils;
 
 /**
  *
@@ -23,51 +33,57 @@ import org.apache.log4j.Logger;
  */
 public class KinomirManager {
 
-    private static final String DISCOUNT = "DISCOUNT";
-    private static final String IDCLIENT = "IDCLIENT";
-    private static final String IFDISCOUNT = "IFDISCOUNT";
-    private static final String ALLFIELDS = "ALLFIELDS";
-    private static final String ASID = "ASID";
-    private static final String IDBUILDING = "IDBUILDING";
-    private static final String IDGENRE = "IDGENRE";
-    private static final String IDHALL = "IDHALL";
-    private static final String IDPERFORMANCE = "IDPERFORMANCE";
-    private static final String IDSHOW = "IDSHOW";
-    private static final String IDSHOWTYPE = "IDSHOWTYPE";
-    private static final String BEGINTIME = "BEGINTIME";
-    private static final String ENDTIME = "ENDTIME";
-    private static final String IDPLACE = "IDPLACE";
-    private static final String IDORDER = "IDORDER";
-    private static final String DESCRIPTION = "DESCRIPTION";
-    private static final String WEEKS = "WEEKS";
-    private static final String WITHPRICE = "WITHPRICE";
-    private static final String ALLPLACES = "ALLPLACES";
-    private static final String IDPRICECATEGORY = "IDPRICECATEGORY";
-    private static final String EMAIL = "EMAIL";
-    private static final String IDUSER = "IDUSER";
-    private static final String MARK = "MARK";
-    private static final String IDPAYMENTMETHOD = "IDPAYMENTMETHOD";
-    private static final String AMOUNT = "AMOUNT";
+    public static final String DISCOUNT = "DISCOUNT";
+    public static final String IDCLIENT = "IDCLIENT";
+    public static final String IFDISCOUNT = "IFDISCOUNT";
+    public static final String ALLFIELDS = "ALLFIELDS";
+    public static final String ASID = "ASID";
+    public static final String IDBUILDING = "IDBUILDING";
+    public static final String IDGENRE = "IDGENRE";
+    public static final String IDHALL = "IDHALL";
+    public static final String IDPERFORMANCE = "IDPERFORMANCE";
+    public static final String IDSHOW = "IDSHOW";
+    public static final String IDSHOWTYPE = "IDSHOWTYPE";
+    public static final String BEGINTIME = "BEGINTIME";
+    public static final String ENDTIME = "ENDTIME";
+    public static final String IDPLACE = "IDPLACE";
+    public static final String IDORDER = "IDORDER";
+    public static final String DESCRIPTION = "DESCRIPTION";
+    public static final String WEEKS = "WEEKS";
+    public static final String WITHPRICE = "WITHPRICE";
+    public static final String ALLPLACES = "ALLPLACES";
+    public static final String IDPRICECATEGORY = "IDPRICECATEGORY";
+    public static final String EMAIL = "EMAIL";
+    public static final String IDUSER = "IDUSER";
+    public static final String MARK = "MARK";
+    public static final String IDPAYMENTMETHOD = "IDPAYMENTMETHOD";
+    public static final String AMOUNT = "AMOUNT";
     public static final String BANKTRXID = "BANK_TRX_ID";
     public static final String PAYATTRIBYTES = "PAY_ATTRIBYTES";
-    
-    public static ResultSet getOrderInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+
+    public static OrderInfoDTO getOrderInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.MyWeb_GetOrderInfo ?");
             if (params.get(IDORDER) != null) {
                 sp.setInt(1, Integer.parseInt(params.get(IDORDER)));
             }
-            return sp.executeQuery();
+            rs = sp.executeQuery();
+            return new OrderInfoDTO(rs);
         } finally {
+            if (rs != null) {
+                rs.close();
+            }
             if (sp != null) {
                 sp.close();
             }
         }
     }
 
-    public static ResultSet addPayment(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static AddPaymentResultDTO addPayment(Connection conn, Map<String, String> params, Logger logger) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.Wga_AddPayment ?, ?, ?, ?, ?, ?, ?");
             if (params.get(IDORDER) != null) {
@@ -90,7 +106,7 @@ public class KinomirManager {
             } else {
                 sp.setNull(5, java.sql.Types.INTEGER);
             }
-                        if (params.get(BANKTRXID) != null) {
+            if (params.get(BANKTRXID) != null) {
                 sp.setString(6, params.get(BANKTRXID));
             } else {
                 sp.setNull(6, java.sql.Types.VARCHAR);
@@ -100,16 +116,16 @@ public class KinomirManager {
             } else {
                 sp.setNull(7, java.sql.Types.VARCHAR);
             }
-            return sp.executeQuery();
+            rs = sp.executeQuery();
+            return new AddPaymentResultDTO(rs, logger);
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet createOrder(Connection conn, Map<String, String> params, Logger logger) throws SQLException, InvalidParameterException {
+    public static CreateOrderDTO createOrder(Connection conn, Map<String, String> params, Logger logger) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.Wga_CreateOrder ?, ?, ?, ?");
             if (params.get(IDCLIENT) != null) {
@@ -139,16 +155,16 @@ public class KinomirManager {
             } else {
                 sp.setBoolean(4, false);
             }
-            return sp.executeQuery();
+            rs = sp.executeQuery();
+            return new CreateOrderDTO(rs);
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet dropPlace(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static SimpleErrorDTO dropPlace(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.Wga_DropPlace ?, ?");
             if (params.get(IDPERFORMANCE) != null) {
@@ -159,16 +175,16 @@ public class KinomirManager {
             } else {
                 sp.setNull(2, java.sql.Types.INTEGER);
             }
-            return sp.executeQuery();
+            rs = sp.executeQuery();
+            return new SimpleErrorDTO(rs);
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet getClientInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static ClientInfoDTO getClientInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.MyWeb_GetClientInfo ?, ?");
             if (params.get(EMAIL) != null) {
@@ -181,16 +197,16 @@ public class KinomirManager {
             } else {
                 sp.setNull(2, java.sql.Types.INTEGER);
             }
-            return sp.executeQuery();
+            rs = sp.executeQuery();
+            return new ClientInfoDTO(rs);
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet getHallSchemaNC(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+/*    public static HallSchemaNCDTO getHallSchemaNC(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.Wga_GetHallSchemaNC ?, ?, ?");
             if ((params.get(IDHALL) != null) && (!"null".equalsIgnoreCase(params.get(IDHALL)))) {
@@ -208,16 +224,16 @@ public class KinomirManager {
             } else {
                 sp.setNull(3, java.sql.Types.INTEGER);
             }
-            return sp.executeQuery();
+            rs = sp.executeQuery();
+            return new HallSchemaNCDTO(rs);
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet getPerfInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static PerfInfoDTO getPerfInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.Wga_GetPerfInfo ?");
 
@@ -228,14 +244,13 @@ public class KinomirManager {
             }
             return sp.executeQuery();
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet getPerformanceNew(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException {
+    public static PerformanceNewDTO getPerformanceNew(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.MyWeb_GetPerformancesNew ?, ?, ?, ?, ?, ?");
             if (params.get(IDBUILDING) != null) {
@@ -262,14 +277,13 @@ public class KinomirManager {
             }
             return sp.executeQuery();
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet getPlaces(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static PlacesDTO getPlaces(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             if (params.get(IDCLIENT) != null) {
                 sp = conn.prepareStatement("exec dbo.Wga_GetPlaces ?, ?, ?, ?");
@@ -294,14 +308,13 @@ public class KinomirManager {
             }
             return sp.executeQuery();
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet getPerformance(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException {
+    public static PerforomanceDTO getPerformance(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.Wga_GetPerformance ?, ?, ?, ?, ?, ?, ?, ?, ?, ?");
             // @IdBuilding int, @IdHall int, @IdShow int, @IdShowType varchar(2), @IdGenre int, 
@@ -350,14 +363,13 @@ public class KinomirManager {
             }
             return sp.executeQuery();
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet getShowNew(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException {
+    public static ShowNewDTO getShowNew(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.MyWeb_GetShow ?, ?, ?, ?, ?");
 
@@ -380,14 +392,13 @@ public class KinomirManager {
             }
             return sp.executeQuery();
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet getShow(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException {
+    public static ShowDTO getShow(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.Wga_GetShow ?, ?, ?, ?, ?, ?, ?");
 
@@ -424,14 +435,13 @@ public class KinomirManager {
             }
             return sp.executeQuery();
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet getZUInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static ZUDTO getZUInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.Wga_getzuinfo ?");
             if (params.get(IDBUILDING) != null) {
@@ -441,14 +451,13 @@ public class KinomirManager {
             }
             return sp.executeQuery();
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
-    }
+    }*/
 
-    public static ResultSet lockPlace(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static LockPlaceDTO lockPlace(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.WgA_LockPlace ?, ?, ?, ?");
             if (params.get(IDPERFORMANCE) != null) {
@@ -470,30 +479,35 @@ public class KinomirManager {
             } else {
                 sp.setBoolean(4, false);
             }
-            return sp.executeQuery();
+            rs = sp.executeQuery();
+            return new LockPlaceDTO(rs);
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet getOrders(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException {
+    public static OrdersDTO getOrders(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException, DataException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
-            sp = conn.prepareStatement("exec dbo.MyWeb_GetOrders ?, ?");
+            if (params.containsKey(IDCLIENT)){
+                sp = conn.prepareStatement("exec dbo.MyWeb_GetOrders ?, ?, ?");
+                sp.setInt(3, Integer.parseInt(params.get(IDCLIENT)));
+            } else {
+                sp = conn.prepareStatement("exec dbo.MyWeb_GetOrders ?, ?");
+            }
             setBeginTimeParameter(params, sp, df, logger, 1);
             setEndTimeParameter(params, sp, df, logger, 2);
-            return sp.executeQuery();
+            rs = sp.executeQuery();
+            return new OrdersDTO(rs);
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet getMoovieSoon(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    /*public static MoovieSoonDTO getMoovieSoon(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.MyWeb_moviesoon ?");
 
@@ -504,14 +518,13 @@ public class KinomirManager {
             }
             return sp.executeQuery();
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet getShowInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static ShowInfoDTO getShowInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.MyWeb_ShowInfo ?");
             if (params.get(IDSHOW) != null) {
@@ -521,14 +534,13 @@ public class KinomirManager {
             }
             return sp.executeQuery();
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
-    }
+    }*/
 
-    public static ResultSet setOrderDescription(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static SimpleResultDTO setOrderDescription(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.Wga_SetOrderDescrioption ?, ?");
             if (params.get(IDORDER) != null) {
@@ -539,31 +551,31 @@ public class KinomirManager {
             } else {
                 sp.setNull(2, java.sql.Types.VARCHAR);
             }
-            return sp.executeQuery();
+            rs = sp.executeQuery();
+            return new SimpleResultDTO(rs);
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet setOrderToNull(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static SimpleErrorDTO setOrderToNull(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.Wga_SetOrderToNull ?");
             if (params.get(IDORDER) != null) {
                 sp.setLong(1, Long.parseLong(params.get(IDORDER)));
             }
-            return sp.executeQuery();
+            rs = sp.executeQuery();
+            return new SimpleErrorDTO(rs);
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    public static ResultSet unlockPlace(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static SimpleResultDTO unlockPlace(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.Wga_UnlockPlace ?, ?, ?");
             if (params.get(IDPERFORMANCE) != null) {
@@ -579,15 +591,14 @@ public class KinomirManager {
             } else {
                 sp.setNull(3, java.sql.Types.INTEGER);
             }
-            return sp.executeQuery();
+            rs = sp.executeQuery();
+            return new SimpleResultDTO(rs);
         } finally {
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
-    private static void setBeginTimeParameter(Map<String, String> params, PreparedStatement sp, DateFormat df, Logger logger, int place) throws SQLException {
+    public static void setBeginTimeParameter(Map<String, String> params, PreparedStatement sp, DateFormat df, Logger logger, int place) throws SQLException {
         try {
             if (params.get(BEGINTIME) != null) {
                 if (params.get(BEGINTIME).contains(":")) {
@@ -605,7 +616,7 @@ public class KinomirManager {
         }
     }
 
-    private static void setEndTimeParameter(Map<String, String> params, PreparedStatement sp, DateFormat df, Logger logger, int place) throws SQLException {
+    public static void setEndTimeParameter(Map<String, String> params, PreparedStatement sp, DateFormat df, Logger logger, int place) throws SQLException {
         try {
             if (params.get(ENDTIME) != null) {
                 if (params.get(ENDTIME).contains(":")) {

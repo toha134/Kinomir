@@ -6,6 +6,7 @@ package ru.kinomir.processor;
 
 import java.security.InvalidParameterException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -13,6 +14,7 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.tools.sql.SqlUtils;
 
 /**
  *
@@ -22,16 +24,22 @@ public class GetPerfInfoProcessor extends AbstractRequestProcessor {
 
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
-
-        logger.debug("Start query");
-        ResultSet rs = KinomirManager.getPerfInfo(conn, params);
-        if (rs.getWarnings() != null) {
-            logger.warn("Sql query stack: " + rs.getWarnings().getMessage(), rs.getWarnings().getCause());
-        }
-        // DateTime	ShowName	Producer	Painter	Description	Remark	Actors	pu_number	
-        // NameEng	ShowType	GenreName	Hall	HallDesc	BuildingName
+        ResultSet rs = null;
+        PreparedStatement sp = null;
 
         try {
+            sp = conn.prepareStatement("exec dbo.Wga_GetPerfInfo ?");
+
+            if (params.get(KinomirManager.IDPERFORMANCE) != null) {
+                sp.setInt(1, Integer.parseInt(params.get(KinomirManager.IDPERFORMANCE)));
+            } else {
+                throw new InvalidParameterException("Parameter '" + KinomirManager.IDPERFORMANCE + "' not found!");
+            }
+            rs = sp.executeQuery();
+
+            // DateTime	ShowName	Producer	Painter	Description	Remark	Actors	pu_number	
+            // NameEng	ShowType	GenreName	Hall	HallDesc	BuildingName
+
             Element item = null;
             SimpleDateFormat outDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
             while (rs.next()) {
@@ -55,9 +63,7 @@ public class GetPerfInfoProcessor extends AbstractRequestProcessor {
             }
             logger.debug("end processing rows");
         } finally {
-            if (rs != null) {
-                rs.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 }

@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.SimpleErrorDTO;
 
 /**
  *
@@ -21,20 +22,11 @@ public class SetOrderToNullProcessor extends AbstractRequestProcessor {
 
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
-        
-        ResultSet rs = KinomirManager.setOrderToNull(conn, params);
-        try {
-            while (rs.next()) {
-                Element item = el.addElement("result");
-                item.addAttribute("Result", rs.getString("Error"));
-                item.addAttribute("ResultDescription", rs.getString("ErrorDescription"));
-            }
-        } catch (SQLException ex) {
-            throw new SQLException(rs.getString("ErrorDescription"), rs.getString("Error"), ex);
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-        }
+
+        SimpleErrorDTO orderToNullDTO = KinomirManager.setOrderToNull(conn, params);
+        Element item = el.addElement("result");
+        item.addAttribute("Result", orderToNullDTO.getError());
+        item.addAttribute("ResultDescription", orderToNullDTO.getErrorDescription());
+
     }
 }

@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
+import ru.kinomir.tools.sql.SqlUtils;
 
 /**
  *
@@ -31,12 +32,7 @@ public class GetGenreProcessor extends AbstractRequestProcessor {
         } catch (SQLException ex) {
             throw new SQLException(rs.getString("ErrorDescription"), rs.getString("Error"), ex);
         } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (sp != null) {
-                sp.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 }

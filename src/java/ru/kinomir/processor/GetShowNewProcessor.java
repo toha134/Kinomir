@@ -18,6 +18,7 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.tools.sql.SqlUtils;
 
 /**
  *
@@ -27,9 +28,30 @@ public class GetShowNewProcessor extends AbstractRequestProcessor {
 
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
-        
-        ResultSet rs = KinomirManager.getShowNew(conn, params, logger, df);
+
+        PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
+            sp = conn.prepareStatement("exec dbo.MyWeb_GetShow ?, ?, ?, ?, ?");
+
+            if (params.get(KinomirManager.IDBUILDING) != null) {
+                sp.setInt(1, Integer.parseInt(params.get(KinomirManager.IDBUILDING)));
+            } else {
+                sp.setNull(1, java.sql.Types.INTEGER);
+            }
+            if (params.get(KinomirManager.IDGENRE) != null) {
+                sp.setInt(2, Integer.parseInt(params.get(KinomirManager.IDGENRE)));
+            } else {
+                sp.setNull(2, java.sql.Types.INTEGER);
+            }
+            KinomirManager.setBeginTimeParameter(params, sp, df, logger, 3);
+            KinomirManager.setEndTimeParameter(params, sp, df, logger, 4);
+            if (params.get(KinomirManager.IDSHOW) != null) {
+                sp.setInt(5, Integer.parseInt(params.get(KinomirManager.IDSHOW)));
+            } else {
+                sp.setNull(5, java.sql.Types.INTEGER);
+            }
+            rs = sp.executeQuery();
             // idshow	showname	age_limit	producer	painter	actors	duration	remark	
             // description	idgenre	genrename	if_prem	PremiereDate	datelastdisplay	nameeng	pu_number
             SimpleDateFormat outDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
@@ -51,14 +73,12 @@ public class GetShowNewProcessor extends AbstractRequestProcessor {
                 item.addAttribute("datelastdisplay", outDateFormat.format(rs.getTimestamp("datelastdisplay", new GregorianCalendar())));
                 item.addAttribute("nameeng", rs.getString("nameeng") == null ? "" : rs.getString("nameeng"));
                 item.addAttribute("pu_number", rs.getString("pu_number") == null ? "" : rs.getString("pu_number"));
-				item.addAttribute("creator", rs.getString("creator") == null ? "" : rs.getString("creator"));
+                item.addAttribute("creator", rs.getString("creator") == null ? "" : rs.getString("creator"));
             }
         } catch (SQLException ex) {
             throw new SQLException(rs.getString("ErrorDescription"), rs.getString("Error"), ex);
         } finally {
-            if (rs != null) {
-                rs.close();
-            }
+           SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 }

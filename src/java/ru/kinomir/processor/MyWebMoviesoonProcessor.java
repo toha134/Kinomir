@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.tools.sql.SqlUtils;
 
 /**
  *
@@ -21,10 +22,18 @@ public class MyWebMoviesoonProcessor extends AbstractRequestProcessor {
 
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
-        
-
-        ResultSet rs = KinomirManager.getMoovieSoon(conn, params);
+        PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
+            sp = conn.prepareStatement("exec dbo.MyWeb_moviesoon ?");
+
+            if (params.get(KinomirManager.WEEKS) != null) {
+                sp.setInt(1, Integer.parseInt(params.get(KinomirManager.WEEKS)));
+            } else {
+                sp.setNull(1, java.sql.Types.INTEGER);
+            }
+            rs = sp.executeQuery();
+
             while (rs.next()) {
                 Element item = el.addElement("movie");
                 item.addAttribute("idshow", Integer.toString(rs.getInt("idshow")));
@@ -37,9 +46,7 @@ public class MyWebMoviesoonProcessor extends AbstractRequestProcessor {
         } catch (SQLException ex) {
             throw new SQLException(rs.getString("ErrorDescription"), rs.getString("Error"), ex);
         } finally {
-            if (rs != null) {
-                rs.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 }

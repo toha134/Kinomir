@@ -6,12 +6,9 @@ package ru.kinomir.processor;
 
 import java.security.InvalidParameterException;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.Map;
@@ -28,15 +25,34 @@ public class GetPerformanceNewProcessor extends AbstractRequestProcessor {
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
 
-        // idperformance,idshow,begintime,endtime,ddd,zal,kinoteatr_id,
-        // kinoteatr,idhall,zonename,price,FreePlaces,ShowName,Duration,
-        // PremiereDate,DateLastDisplay,IdGenre,GenreName
-        logger.debug("Start query");
-        ResultSet rs = KinomirManager.getPerformanceNew(conn, params, logger, df);
-        if (rs.getWarnings() != null) {
-            logger.warn("Sql query stack: " + rs.getWarnings().getMessage(), rs.getWarnings().getCause());
-        }
+        PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
+            sp = conn.prepareStatement("exec dbo.MyWeb_GetPerformancesNew ?, ?, ?, ?, ?, ?");
+            if (params.get(KinomirManager.IDBUILDING) != null) {
+                sp.setInt(1, Integer.parseInt(params.get(KinomirManager.IDBUILDING)));
+            } else {
+                sp.setNull(1, java.sql.Types.INTEGER);
+            }
+            if (params.get(KinomirManager.IDSHOW) != null) {
+                sp.setInt(2, Integer.parseInt(params.get(KinomirManager.IDSHOW)));
+            } else {
+                sp.setNull(2, java.sql.Types.INTEGER);
+            }
+            if (params.get(KinomirManager.IDGENRE) != null) {
+                sp.setInt(3, Integer.parseInt(params.get(KinomirManager.IDGENRE)));
+            } else {
+                sp.setNull(3, java.sql.Types.INTEGER);
+            }
+            KinomirManager.setBeginTimeParameter(params, sp, df, logger, 4);
+            KinomirManager.setEndTimeParameter(params, sp, df, logger, 5);
+            if (params.get(KinomirManager.IDPERFORMANCE) != null) {
+                sp.setInt(6, Integer.parseInt(params.get(KinomirManager.IDPERFORMANCE)));
+            } else {
+                sp.setNull(6, java.sql.Types.INTEGER);
+            }
+            rs = sp.executeQuery();
+
             Element item = null;
             SimpleDateFormat outDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
             while (rs.next()) {
@@ -83,6 +99,7 @@ public class GetPerformanceNewProcessor extends AbstractRequestProcessor {
                     }
                     item.addAttribute("FreePlaces", Integer.toString(rs.getInt("FreePlaces")));
                     item.addAttribute("is3d", Integer.toString(rs.getInt("ddd")));
+                    item.addAttribute("hfr", Integer.toString(rs.getInt("hfr")));
                 }
 
                 item = item.addElement("price");

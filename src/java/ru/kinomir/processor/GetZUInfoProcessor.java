@@ -14,6 +14,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.tools.sql.SqlUtils;
 
 /**
  *
@@ -24,8 +25,16 @@ public class GetZUInfoProcessor extends AbstractRequestProcessor {
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
 
-        ResultSet rs = KinomirManager.getZUInfo(conn, params);
+        PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
+            sp = conn.prepareStatement("exec dbo.Wga_getzuinfo ?");
+            if (params.get(KinomirManager.IDBUILDING) != null) {
+                sp.setInt(1, Integer.parseInt(params.get(KinomirManager.IDBUILDING)));
+            } else {
+                throw new InvalidParameterException("Parameter '" + KinomirManager.IDBUILDING + "' not found!");
+            }
+            rs = sp.executeQuery();
             while (rs.next()) {
                 Element item = el.addElement("Building");
                 item.addAttribute("IdBuilding", Integer.toString(rs.getInt("IdBuilding")));
@@ -41,9 +50,7 @@ public class GetZUInfoProcessor extends AbstractRequestProcessor {
         } catch (SQLException ex) {
             throw new SQLException(rs.getString("ErrorDescription"), rs.getString("Error"), ex);
         } finally {
-            if (rs != null) {
-                rs.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 }

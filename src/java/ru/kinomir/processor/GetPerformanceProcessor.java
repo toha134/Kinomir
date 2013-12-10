@@ -6,6 +6,7 @@ package ru.kinomir.processor;
 
 import java.security.InvalidParameterException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -14,6 +15,7 @@ import java.util.Map;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.tools.sql.SqlUtils;
 
 /**
  *
@@ -24,14 +26,55 @@ public class GetPerformanceProcessor extends AbstractRequestProcessor {
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
         
-        // IdPerformance, DateTime, BuildingName, HallName, ShowName, GenreName, Duration, MinPrice, MaxPrice, FreePlace, 
-        // IdBuilding, IdHall, IdShowType, IdGenre, IdShow
-        logger.debug("Start query");
-        ResultSet rs =KinomirManager.getPerformance(conn, params, logger, df);
-        if (rs.getWarnings() != null) {
-            logger.warn("Sql query stack: " + rs.getWarnings().getMessage(), rs.getWarnings().getCause());
-        }
+        PreparedStatement sp = null;
+        ResultSet rs = null;
         try {
+            sp = conn.prepareStatement("exec dbo.Wga_GetPerformance ?, ?, ?, ?, ?, ?, ?, ?, ?, ?");
+            // @IdBuilding int, @IdHall int, @IdShow int, @IdShowType varchar(2), @IdGenre int, 
+            // @BeginTime datetime, @EndTime datetime, @AllFields tinyint, @AsId bit
+            if (params.get(KinomirManager.IDBUILDING) != null) {
+                sp.setInt(1, Integer.parseInt(params.get(KinomirManager.IDBUILDING)));
+            } else {
+                sp.setNull(1, java.sql.Types.INTEGER);
+            }
+            if (params.get(KinomirManager.IDHALL) != null) {
+                sp.setInt(2, Integer.parseInt(params.get(KinomirManager.IDHALL)));
+            } else {
+                sp.setNull(2, java.sql.Types.INTEGER);
+            }
+            if (params.get(KinomirManager.IDSHOW) != null) {
+                sp.setInt(3, Integer.parseInt(params.get(KinomirManager.IDSHOW)));
+            } else {
+                sp.setNull(3, java.sql.Types.INTEGER);
+            }
+            if (params.get(KinomirManager.IDSHOWTYPE) != null) {
+                sp.setString(4, params.get(KinomirManager.IDSHOWTYPE));
+            } else {
+                sp.setNull(4, java.sql.Types.VARCHAR);
+            }
+            if (params.get(KinomirManager.IDGENRE) != null) {
+                sp.setInt(5, Integer.parseInt(params.get(KinomirManager.IDGENRE)));
+            } else {
+                sp.setNull(5, java.sql.Types.INTEGER);
+            }
+            KinomirManager.setBeginTimeParameter(params, sp, df, logger, 6);
+            KinomirManager.setEndTimeParameter(params, sp, df, logger, 7);
+            if (params.get(KinomirManager.ALLFIELDS) != null) {
+                sp.setInt(8, Integer.parseInt(params.get(KinomirManager.ALLFIELDS)));
+            } else {
+                sp.setInt(8, 1);
+            }
+            if (params.get(KinomirManager.ASID) != null) {
+                sp.setInt(9, Integer.parseInt(params.get(KinomirManager.ASID)));
+            } else {
+                sp.setInt(9, 1);
+            }
+            if (params.get(KinomirManager.IDPERFORMANCE) != null) {
+                sp.setInt(10, Integer.parseInt(params.get(KinomirManager.IDPERFORMANCE)));
+            } else {
+                sp.setNull(10, java.sql.Types.INTEGER);
+            }
+            rs = sp.executeQuery();
             Element item = null;
             SimpleDateFormat outDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
             while (rs.next()) {
@@ -75,9 +118,7 @@ public class GetPerformanceProcessor extends AbstractRequestProcessor {
         } catch (SQLException ex) {
             throw new SQLException(rs.getString("ErrorDescription"), rs.getString("Error"), ex);
         } finally {
-            if (rs != null) {
-                rs.close();
-            }
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 }
