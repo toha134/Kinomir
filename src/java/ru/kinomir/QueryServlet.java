@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.naming.Context;
@@ -54,10 +55,13 @@ public class QueryServlet extends HttpServlet {
 				AbstractRequestProcessor processor = (AbstractRequestProcessor) Class.forName(queryProcessor).newInstance();
 				processor.setLogger(logger);
 				Connection conn = getConnection(userId);
-				Map<String, String> requestParams = new TreeMap<String, String>();
+				Map<String, String> requestParams = new HashMap<String, String>();
 				for (Object parName : request.getParameterMap().keySet()) {
 					requestParams.put(((String) parName).toUpperCase(), request.getParameter((String) parName));
 				}
+                if (!requestParams.containsKey("IdDocument")){
+                    requestParams.put("IdDocument", getInitParameter("IdDocument"));
+                }
 				logger.info("Request params: " + paramsToString(requestParams));
 				try {
 					answer = processor.processQuery(conn, requestParams);
