@@ -16,7 +16,8 @@ import ru.kinomir.datalayer.dto.SimpleResultDTO;
  *
  * @author Admin
  */
-public class SetOrderDescrioptionProcessor extends AbstractRequestProcessor {
+			 
+public class SetOrderDescriptionProcessor extends AbstractRequestProcessor {
 
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {

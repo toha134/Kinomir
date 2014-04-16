@@ -24,13 +24,15 @@ public abstract class AbstractRequestProcessor {
      *
      */
     protected Logger logger;
+	private Map<String, String> initParams;
 
     public void setLogger(Logger logger) {
         this.logger = logger;
     }
     SimpleDateFormat df = (SimpleDateFormat) SimpleDateFormat.getInstance();
 
-    public String processQuery(Connection conn, Map<String, String> params) throws Exception {
+    public String processQuery(Connection conn, Map<String, String> params, Map<String, String> initParams) throws Exception {
+		this.initParams = initParams;
         logger.info("Start prcessing with " + this.getClass().getName());
         df.applyPattern("MM/dd/yyyy HH:mm:ss");
         Document resXML = DocumentHelper.createDocument();
@@ -42,18 +44,32 @@ public abstract class AbstractRequestProcessor {
         } catch (DataException ex) {
             el.addAttribute("error", ex.getErrorCode());
             el.addAttribute("errorMessage", ex.getMessage());
-            logger.error("Processing error: " + ex.getMessage(), ex);
+            logger.error("Processing error: " + ex.getMessage());
+			logger.debug("Processing error: " + ex.getMessage(), ex);
         } catch (SQLException ex) {
             el.addAttribute("error", ex.getSQLState());
             el.addAttribute("errorMessage", ex.getMessage());
-            logger.error("Processing error: " + ex.getMessage(), ex);
+            logger.error("Processing error: " + ex.getMessage());
+			logger.debug("Processing error: " + ex.getMessage(), ex);
         } catch (Exception ex) {
             el.addAttribute("error", "0");
             el.addAttribute("errorMessage", ex.getMessage());
-            logger.error("General processing error: " + ex.getMessage(), ex);
+            logger.error("General processing error: " + ex.getMessage());
+			logger.debug("General processing error: " + ex.getMessage(), ex);
         }
         return resXML.asXML();
     }
 
     protected abstract void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException, DataException;
+	
+	protected String getInitParam(String name){
+		if (initParams != null){
+			return initParams.get(name);
+		}
+		return null;
+	}
+	
+	public boolean isEmpty(String value){
+		return (value == null) || "".equals(value);
+	}
 }

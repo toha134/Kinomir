@@ -2,4 +2,13 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1"/>
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/1">
+        <file>file:/media/anton/C8F07275F0726998/My/Kinomir/web/WEB-INF/web.xml</file>
+        <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/QueryServlet.java</file>
+        <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/processor/SetOrderDescriptionProcessor.java</file>
+        <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/processor/GetHallSchemaNCProcessor.java</file>
+        <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/processor/GetZUInfoProcessor.java</file>
+        <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/datalayer/KinomirManager.java</file>
+        <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/datalayer/dto/OrderInfoDTO.java</file>
+    </open-files>
 </project-private>

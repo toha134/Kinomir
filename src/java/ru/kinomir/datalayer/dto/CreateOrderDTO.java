@@ -14,35 +14,37 @@ import ru.kinomir.tools.sql.SqlUtils;
  */
 public class CreateOrderDTO {
 
-    private String idOrder;
-    private final String placeCount;
-    private final String price;
-    private final String markUp;
+	private String idOrder;
+	private  String placeCount;
+	private  String price;
+	private  String markUp;
 
-    public CreateOrderDTO(ResultSet rs) throws SQLException {
-        try {
-        idOrder = rs.getString("idOrder");
-        placeCount = rs.getString("PlaceCount");
-        price = rs.getString("Price");
-        markUp = rs.getString("MarkUp");
-        } catch (SQLException ex){
-            throw SqlUtils.convertErrorToException(rs, ex);
-        }
-    }
+	public CreateOrderDTO(ResultSet rs) throws SQLException {
+		try {
+			if (rs.next()) {
+				idOrder = rs.getString("idOrder");
+				placeCount = rs.getString("PlaceCount");
+				price = rs.getString("Price");
+				markUp = rs.getString("MarkUp");
+			}
+		} catch (SQLException ex) {
+			throw SqlUtils.convertErrorToException(rs, ex);
+		}
+	}
 
-    public String getIdOrder() {
-        return idOrder;
-    }
+	public String getIdOrder() {
+		return idOrder;
+	}
 
-    public String getPlaceCount() {
-        return placeCount;
-    }
+	public String getPlaceCount() {
+		return placeCount;
+	}
 
-    public String getPrice() {
-        return price;
-    }
+	public String getPrice() {
+		return price;
+	}
 
-    public String getMarkUp() {
-        return markUp;
-    }
+	public String getMarkUp() {
+		return markUp;
+	}
 }

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -36,8 +37,11 @@ public class QueryServlet extends HttpServlet {
 		logger.info(new StringBuilder("Servlet init : ").append(getClass().getName()));
 	}
 
-	/** 
-	 * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+	/**
+	 * Processes requests for both HTTP
+	 * <code>GET</code> and
+	 * <code>POST</code> methods.
+	 *
 	 * @param request servlet request
 	 * @param response servlet response
 	 * @throws ServletException if a servlet-specific error occurs
@@ -59,12 +63,18 @@ public class QueryServlet extends HttpServlet {
 				for (Object parName : request.getParameterMap().keySet()) {
 					requestParams.put(((String) parName).toUpperCase(), request.getParameter((String) parName));
 				}
-                if (!requestParams.containsKey("IdDocument")){
-                    requestParams.put("IdDocument", getInitParameter("IdDocument"));
-                }
+				Map<String, String> initParams = new HashMap<String, String>();
+				Enumeration<String> initPapamsNames = getInitParameterNames();
+				while (initPapamsNames.hasMoreElements()) {
+					String initParamName = initPapamsNames.nextElement();
+					initParams.put(initParamName, getInitParameter(initParamName));
+				}
+				if (!requestParams.containsKey("IDDOCUMENT")) {
+					requestParams.put("IDDOCUMENT", getInitParameter("IDDOCUMENT"));
+				}
 				logger.info("Request params: " + paramsToString(requestParams));
 				try {
-					answer = processor.processQuery(conn, requestParams);
+					answer = processor.processQuery(conn, requestParams, initParams);
 				} finally {
 					conn.close();
 				}
@@ -97,8 +107,10 @@ public class QueryServlet extends HttpServlet {
 	}
 
 	// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-	/** 
-	 * Handles the HTTP <code>GET</code> method.
+	/**
+	 * Handles the HTTP
+	 * <code>GET</code> method.
+	 *
 	 * @param request servlet request
 	 * @param response servlet response
 	 * @throws ServletException if a servlet-specific error occurs
@@ -110,8 +122,10 @@ public class QueryServlet extends HttpServlet {
 		processRequest(request, response);
 	}
 
-	/** 
-	 * Handles the HTTP <code>POST</code> method.
+	/**
+	 * Handles the HTTP
+	 * <code>POST</code> method.
+	 *
 	 * @param request servlet request
 	 * @param response servlet response
 	 * @throws ServletException if a servlet-specific error occurs
@@ -123,8 +137,9 @@ public class QueryServlet extends HttpServlet {
 		processRequest(request, response);
 	}
 
-	/** 
+	/**
 	 * Returns a short description of the servlet.
+	 *
 	 * @return a String containing servlet description
 	 */
 	@Override

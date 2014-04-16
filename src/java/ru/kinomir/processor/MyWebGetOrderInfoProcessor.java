@@ -33,14 +33,14 @@ public class MyWebGetOrderInfoProcessor extends AbstractRequestProcessor {
 
         orderInfoDTO = KinomirManager.getOrderInfo(conn, params);
         for (Map<String, String> orderLine : orderInfoDTO.getOrderInfo()) {
-            Node node = el.selectSingleNode(String.format("//order[@IdOrder='%s']", orderLine.get("IdOrder")));
+            Node node = el.selectSingleNode(String.format("//order[@IdOrder='%s']", orderLine.get("idorder")));
             Element item = null;
             if (node != null) {
                 item = (Element) node;
                 node = null;
             } else {
                 item = el.addElement("order");
-                item.addAttribute("IdOrder", orderLine.get("IdOrder"));
+                item.addAttribute("IdOrder", orderLine.get("idorder"));
                 for (String colName : orderColumns) {
                     if (colName.equals("ordertotalticketssum")) {
                         item.addAttribute(colName, orderLine.get(colName) == null ? "0" : Double.toString(Double.parseDouble(orderLine.get(colName))));

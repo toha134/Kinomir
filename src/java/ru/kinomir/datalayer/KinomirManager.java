@@ -542,7 +542,7 @@ public class KinomirManager {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
-            sp = conn.prepareStatement("exec dbo.Wga_SetOrderDescrioption ?, ?");
+            sp = conn.prepareStatement("exec dbo.Wga_SetOrderDescription ?, ?");
             if (params.get(IDORDER) != null) {
                 sp.setLong(1, Long.parseLong(params.get(IDORDER)));
             }

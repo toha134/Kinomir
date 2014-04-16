@@ -29,7 +29,7 @@ public class GetClientProcessor extends AbstractRequestProcessor {
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
         PreparedStatement sp = conn.prepareStatement("exec dbo.Wga_GetClient ?");
-        if (params.get("IDBUILDING") != null) {
+        if (params.get("EMAIL") != null) {
             sp.setString(1, params.get("EMAIL"));
         } else {
             sp.setNull(1, java.sql.Types.VARCHAR);

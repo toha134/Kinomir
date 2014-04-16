@@ -25,7 +25,7 @@
             <param-value>ru.kinomir.processor.GetPerformanceNewProcessor</param-value>
         </init-param>
         <init-param>
-            <param-name>WGa_getzuinfo</param-name>
+            <param-name>Wga_GetZUInfo</param-name>
             <param-value>ru.kinomir.processor.GetZUInfoProcessor</param-value>
         </init-param>
         <init-param>
