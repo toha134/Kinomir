@@ -19,41 +19,55 @@ import ru.kinomir.tools.sql.SqlUtils;
  */
 public class OrdersDTO {
 
-    private final static String[] orderColumns = {"idorder", "ordercreatetime", "brokerage", "timepayment",
-        "orderexpiretime", "orderstate", "orderprice", "orderpaysum", "orderrecalltickets", "saledticketssum",
-        "saledtickets", "ordertotalticketssum", "ordertotaltickets", "name", "firstname", "patronymic", "phone", "email", "fax", "cellular", "birthday"};
-    private final static String[] performanceColumns = {"showname", "idperformance", "performancestarttime", "hall", "building"};
-    private final static String[] placeColumns = {"idplace", "rownom", "placenom"};
-    
-    private List<Map<String, String>> ordersInfo = new ArrayList<Map<String, String>>();
-        
-    public OrdersDTO(ResultSet rs) throws DataException, SQLException {
-        if (rs == null) {
-            throw new DataException("2","No data");
-        }
-        try {
-            while (rs.next()) {
-                Map<String, String> orderLine = new HashMap<String, String>();
-                for (String colName : orderColumns) {
-                    orderLine.put(colName, rs.getString(colName));
-                }
-                for (String colName : performanceColumns) {
-                    orderLine.put(colName, rs.getString(colName));
-                }
-                for (String colName : placeColumns) {
-                    orderLine.put(colName, rs.getString(colName));
-                }
-                ordersInfo.add(orderLine);
-            }
-            
-        } catch (SQLException ex) {
-            throw SqlUtils.convertErrorToException(rs, ex);
-        }
-    }
+	private final static String[] orderColumns = {"idorder", "ordercreatetime", "brokerage", "timepayment",
+		"orderexpiretime", "orderstate", "orderprice", "orderpaysum", "orderrecalltickets", "saledticketssum",
+		"saledtickets", "ordertotalticketssum", "ordertotaltickets", "name", "firstname", "patronymic", "phone", "email", "fax", "cellular", "birthday", "orderdescription", "orderpass"};
+	private final static String[] performanceColumns = {"showname", "idperformance", "performancestarttime", "hall", "building", "idshow"};
+	private final static String[] placeColumns = {"idplace", "rownom", "placenom"};
+	private List<Map<String, String>> ordersInfo = new ArrayList<Map<String, String>>();
 
-    public List<Map<String, String>> getOrdersInfo() {
-        return ordersInfo;
-    }
-    
-    
+	public OrdersDTO(ResultSet rs) throws DataException, SQLException {
+		if (rs == null) {
+			throw new DataException("2", "No data");
+		}
+		try {
+			while (rs.next()) {
+				try {
+					throw new DataException(rs.getString("Error"), rs.getString("ErrorDescription"));
+				} catch (SQLException ex) {
+				}
+				Map<String, String> orderLine = new HashMap<String, String>();
+				for (String colName : orderColumns) {
+					try {
+						orderLine.put(colName, rs.getString(colName));
+					} catch (SQLException ex) {
+					}
+				}
+				for (String colName : performanceColumns) {
+					try {
+
+						orderLine.put(colName, rs.getString(colName));
+					} catch (SQLException ex) {
+					}
+
+				}
+				for (String colName : placeColumns) {
+					try {
+
+						orderLine.put(colName, rs.getString(colName));
+					} catch (SQLException ex) {
+					}
+
+				}
+				ordersInfo.add(orderLine);
+			}
+
+		} catch (SQLException ex) {
+			throw SqlUtils.convertErrorToException(rs, ex);
+		}
+	}
+
+	public List<Map<String, String>> getOrdersInfo() {
+		return ordersInfo;
+	}
 }

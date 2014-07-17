@@ -10,5 +10,10 @@
         <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/processor/GetZUInfoProcessor.java</file>
         <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/datalayer/KinomirManager.java</file>
         <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/datalayer/dto/OrderInfoDTO.java</file>
+        <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/processor/GetShowProcessor.java</file>
+        <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/processor/MyWebShowInfoProcessor.java</file>
+        <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/processor/AbstractRequestProcessor.java</file>
+        <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/processor/GetShowNewProcessor.java</file>
+        <file>file:/media/anton/C8F07275F0726998/My/Kinomir/src/java/ru/kinomir/processor/GetPerformanceNewProcessor.java</file>
     </open-files>
 </project-private>

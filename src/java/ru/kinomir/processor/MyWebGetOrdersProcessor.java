@@ -22,8 +22,8 @@ public class MyWebGetOrdersProcessor extends AbstractRequestProcessor {
 
     private final static String[] orderColumns = {"idorder", "ordercreatetime", "brokerage", "timepayment",
         "orderexpiretime", "orderstate", "orderprice", "orderpaysum", "orderrecalltickets", "saledticketssum",
-        "saledtickets", "ordertotalticketssum", "ordertotaltickets", "name", "firstname", "patronymic", "phone", "email", "fax", "cellular", "birthday"};
-    private final static String[] performanceColumns = {"showname", "idperformance", "performancestarttime", "hall", "building"};
+        "saledtickets", "ordertotalticketssum", "ordertotaltickets", "name", "firstname", "patronymic", "phone", "email", "fax", "cellular", "birthday", "orderdescription", "orderpass"};
+    private final static String[] performanceColumns = {"showname", "idperformance", "performancestarttime", "hall", "building", "idshow"};
     private final static String[] placeColumns = {"idplace", "rownom", "placenom"};
 
     @Override

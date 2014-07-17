@@ -29,28 +29,33 @@ public class GetPerformanceNewProcessor extends AbstractRequestProcessor {
 		PreparedStatement sp = null;
 		ResultSet rs = null;
 		try {
-			sp = conn.prepareStatement("exec dbo.MyWeb_GetPerformancesNew ?, ?, ?, ?, ?, ?");
+			sp = conn.prepareStatement("exec dbo.MyWeb_GetPerformancesNew ?, ?, ?, ?, ?, ?, ?");
 			if (params.get(KinomirManager.IDBUILDING) != null) {
 				sp.setInt(1, Integer.parseInt(params.get(KinomirManager.IDBUILDING)));
 			} else {
 				sp.setNull(1, java.sql.Types.INTEGER);
 			}
-			if (params.get(KinomirManager.IDSHOW) != null) {
-				sp.setInt(2, Integer.parseInt(params.get(KinomirManager.IDSHOW)));
+			if (params.get(KinomirManager.IDREGION) != null) {
+				sp.setInt(2, Integer.parseInt(params.get(KinomirManager.IDREGION)));
 			} else {
 				sp.setNull(2, java.sql.Types.INTEGER);
 			}
-			if (params.get(KinomirManager.IDGENRE) != null) {
-				sp.setInt(3, Integer.parseInt(params.get(KinomirManager.IDGENRE)));
+			if (params.get(KinomirManager.IDSHOW) != null) {
+				sp.setInt(3, Integer.parseInt(params.get(KinomirManager.IDSHOW)));
 			} else {
 				sp.setNull(3, java.sql.Types.INTEGER);
 			}
-			KinomirManager.setBeginTimeParameter(params, sp, df, logger, 4);
-			KinomirManager.setEndTimeParameter(params, sp, df, logger, 5);
-			if (params.get(KinomirManager.IDPERFORMANCE) != null) {
-				sp.setInt(6, Integer.parseInt(params.get(KinomirManager.IDPERFORMANCE)));
+			if (params.get(KinomirManager.IDGENRE) != null) {
+				sp.setInt(4, Integer.parseInt(params.get(KinomirManager.IDGENRE)));
 			} else {
-				sp.setNull(6, java.sql.Types.INTEGER);
+				sp.setNull(4, java.sql.Types.INTEGER);
+			}
+			KinomirManager.setBeginTimeParameter(params, sp, df, logger, 5);
+			KinomirManager.setEndTimeParameter(params, sp, df, logger, 6);
+			if (params.get(KinomirManager.IDPERFORMANCE) != null) {
+				sp.setInt(7, Integer.parseInt(params.get(KinomirManager.IDPERFORMANCE)));
+			} else {
+				sp.setNull(7, java.sql.Types.INTEGER);
 			}
 			rs = sp.executeQuery();
 

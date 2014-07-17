@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
+import ru.kinomir.datalayer.KinomirManager;
 import ru.kinomir.tools.sql.SqlUtils;
 
 /**
@@ -21,7 +22,15 @@ public class GetGenreProcessor extends AbstractRequestProcessor {
 
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
-        PreparedStatement sp = conn.prepareStatement("exec dbo.Wga_GetGenre");
+		PreparedStatement sp = null;
+		if (params.containsKey(KinomirManager.IDREGION)){
+			sp = conn.prepareStatement("exec dbo.Wga_GetGenre ?");
+		} else {
+			sp = conn.prepareStatement("exec dbo.Wga_GetGenre");
+		}
+        if (params.containsKey(KinomirManager.IDREGION)){
+			sp.setInt(1, Integer.parseInt(params.get(KinomirManager.IDREGION)));
+		}
         ResultSet rs = sp.executeQuery();
         try {
             while (rs.next()) {

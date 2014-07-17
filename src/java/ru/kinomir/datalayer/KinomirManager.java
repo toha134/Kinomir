@@ -60,6 +60,7 @@ public class KinomirManager {
     public static final String AMOUNT = "AMOUNT";
     public static final String BANKTRXID = "BANK_TRX_ID";
     public static final String PAYATTRIBYTES = "PAY_ATTRIBYTES";
+	public static final String IDREGION = "IDREGION";
 
     public static OrderInfoDTO getOrderInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
         PreparedStatement sp = null;

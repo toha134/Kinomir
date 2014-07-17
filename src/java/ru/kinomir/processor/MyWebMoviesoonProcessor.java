@@ -25,12 +25,17 @@ public class MyWebMoviesoonProcessor extends AbstractRequestProcessor {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
-            sp = conn.prepareStatement("exec dbo.MyWeb_moviesoon ?");
+            sp = conn.prepareStatement("exec dbo.MyWeb_moviesoon ?, ?");
 
             if (params.get(KinomirManager.WEEKS) != null) {
                 sp.setInt(1, Integer.parseInt(params.get(KinomirManager.WEEKS)));
             } else {
                 sp.setNull(1, java.sql.Types.INTEGER);
+            }
+			if (params.get(KinomirManager.IDREGION) != null) {
+                sp.setInt(2, Integer.parseInt(params.get(KinomirManager.IDREGION)));
+            } else {
+                sp.setNull(2, java.sql.Types.INTEGER);
             }
             rs = sp.executeQuery();
 
