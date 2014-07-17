@@ -21,7 +21,7 @@ public class OrdersDTO {
 
 	private final static String[] orderColumns = {"idorder", "ordercreatetime", "brokerage", "timepayment",
 		"orderexpiretime", "orderstate", "orderprice", "orderpaysum", "orderrecalltickets", "saledticketssum",
-		"saledtickets", "ordertotalticketssum", "ordertotaltickets", "name", "firstname", "patronymic", "phone", "email", "fax", "cellular", "birthday", "orderdescription", "orderpass"};
+		"saledtickets", "ordertotalticketssum", "ordertotaltickets", "name", "firstname", "patronymic", "phone", "email", "fax", "cellular", "birthday", "orderdescription"};
 	private final static String[] performanceColumns = {"showname", "idperformance", "performancestarttime", "hall", "building", "idshow"};
 	private final static String[] placeColumns = {"idplace", "rownom", "placenom"};
 	private List<Map<String, String>> ordersInfo = new ArrayList<Map<String, String>>();
@@ -40,6 +40,10 @@ public class OrdersDTO {
 				for (String colName : orderColumns) {
 					try {
 						orderLine.put(colName, rs.getString(colName));
+						if ("orderdescription".equals(colName) && rs.getString(colName) != null){
+							String pass = rs.getString(colName).replaceAll("\\D", "");
+							orderLine.put("orderpass", pass);
+						}
 					} catch (SQLException ex) {
 					}
 				}
