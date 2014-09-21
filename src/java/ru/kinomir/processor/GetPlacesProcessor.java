@@ -68,7 +68,8 @@ public class GetPlacesProcessor extends AbstractRequestProcessor {
                 try {
                     item.addAttribute("idorder", rs.getString("idorder"));
                 } catch (SQLException ex) {
-                    logger.error("Column not found", ex);
+                    logger.error("Column not found" + ex.getMessage());
+					logger.debug("Column not found", ex);
                     item.addAttribute("idorder", "");
                 }
             }
