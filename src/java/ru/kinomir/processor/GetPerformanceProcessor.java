@@ -15,6 +15,7 @@ import java.util.Map;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.tools.sql.SqlUtils;
 
 /**
@@ -107,7 +108,6 @@ public class GetPerformanceProcessor extends AbstractRequestProcessor {
                 //<performance IdPerformance="" DateTime="" ShowName="" GenreName="" Duration="" MinPrice="" MaxPrice="" FreePlace="" />
                 item = item.addElement("performance");
                 item.addAttribute("IdPerformance", Integer.toString(rs.getInt("IdPerformance")));
-
                 item.addAttribute("DateTime", outDateFormat.format(rs.getTimestamp("DateTime", new GregorianCalendar())));
                 item.addAttribute("MinPrice", Double.toString(rs.getDouble(("MinPrice"))));
                 item.addAttribute("MaxPrice", Double.toString(rs.getDouble(("MaxPrice"))));
@@ -121,4 +121,11 @@ public class GetPerformanceProcessor extends AbstractRequestProcessor {
             SqlUtils.closeSQLObjects(rs, sp);
         }
     }
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.getPerformance(conn, params, logger, df);
+    }
+    
+    
 }

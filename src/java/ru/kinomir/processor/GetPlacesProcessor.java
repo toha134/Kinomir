@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.tools.sql.SqlUtils;
 
 /**
@@ -69,14 +70,20 @@ public class GetPlacesProcessor extends AbstractRequestProcessor {
                     item.addAttribute("idorder", rs.getString("idorder"));
                 } catch (SQLException ex) {
                     logger.error("Column not found" + ex.getMessage());
-					logger.debug("Column not found", ex);
+                    logger.debug("Column not found", ex);
                     item.addAttribute("idorder", "");
                 }
             }
         } catch (SQLException ex) {
             throw new SQLException(rs.getString("ErrorDescription"), rs.getString("Error"), ex);
         } finally {
-           SqlUtils.closeSQLObjects(rs, sp);
+            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.getPlaces(conn, params);
+    }
+
 }

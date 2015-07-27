@@ -17,7 +17,11 @@ public class SqlUtils {
     public static SQLException convertErrorToException(ResultSet rs, SQLException originalEx) {
         SQLException result = null;
         try {
-            result = new SQLException(rs.getString("ErrorDescription"), rs.getString("Error"), originalEx);
+            if (rs != null){
+                result = new SQLException(rs.getString("ErrorDescription"), rs.getString("Error"), originalEx);
+            } else {
+                result = new SQLException("No result for query", "1", originalEx);
+            }
         } catch (SQLException ex) {
             result = originalEx;
         }

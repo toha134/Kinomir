@@ -7,12 +7,11 @@ package ru.kinomir.processor;
 
 import java.security.InvalidParameterException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.datalayer.dto.LockPlaceDTO;
 
 /**
@@ -28,4 +27,11 @@ public class LockPlaceProcessor extends AbstractRequestProcessor {
         Element item = el.addElement("price");
         item.setText(lockPlaceDTO.getPrice());
     }
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.lockPlace(conn, params);
+    }
+    
+    
 }

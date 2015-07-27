@@ -14,6 +14,7 @@ import java.util.Map;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.tools.sql.SqlUtils;
 
 /**
@@ -93,4 +94,11 @@ public class GetShowProcessor extends AbstractRequestProcessor {
            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.getShow(conn, params, logger, df);
+    }
+    
+    
 }

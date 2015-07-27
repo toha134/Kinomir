@@ -10,7 +10,8 @@ import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
-import ru.kinomir.datalayer.dto.SimpleResultDTO;
+import ru.kinomir.datalayer.dto.DataNode;
+import ru.kinomir.datalayer.dto.SimpleResultData;
 
 /**
  *
@@ -22,11 +23,17 @@ public class SetOrderDescriptionProcessor extends AbstractRequestProcessor {
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
 
-        SimpleResultDTO result = KinomirManager.setOrderDescription(conn, params);
+        SimpleResultData result = KinomirManager.setOrderDescription(conn, params);
 
         Element item = el.addElement("result");
-        item.addAttribute("Result", result.getResult());
-        item.addAttribute("ResultDescription", result.getResultDescription());
-
+        item.addAttribute("Result", result.getResult().getResult());
+        item.addAttribute("ResultDescription", result.getResult().getResultDescription());
     }
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.setOrderDescription(conn, params);
+    }
+    
+    
 }

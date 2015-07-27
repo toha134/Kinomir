@@ -4,22 +4,33 @@
  */
 package ru.kinomir.datalayer.dto;
 
+import com.google.gson.annotations.SerializedName;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 import ru.kinomir.tools.sql.SqlUtils;
 
 /**
  *
  * @author Антон
  */
-public class SimpleErrorDTO {
+@XmlRootElement(name = "data")
+public class SimpleErrorData extends DataNode {
 
+    @SerializedName("error")
     private String error;
+    @SerializedName("errorDescription")
     private String errorDescription;
+    
+    public SimpleErrorData(){
+        
+    }
 
-    public SimpleErrorDTO(ResultSet rs) throws SQLException {
-        if (rs == null)
+    public SimpleErrorData(ResultSet rs) throws SQLException {
+        if (rs == null) {
             throw new SQLException("No data for query");
+        }
         try {
             while (rs.next()) {
                 error = rs.getString("Error");
@@ -30,10 +41,12 @@ public class SimpleErrorDTO {
         }
     }
 
+    @XmlAttribute(name = "Error")
     public String getError() {
         return error;
     }
 
+    @XmlAttribute(name = "ErrorDescription")
     public String getErrorDescription() {
         return errorDescription;
     }

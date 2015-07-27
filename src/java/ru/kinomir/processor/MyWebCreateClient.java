@@ -14,9 +14,9 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.dom4j.Element;
+import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.tools.sql.SqlUtils;
 
 /**
@@ -123,4 +123,11 @@ public class MyWebCreateClient extends AbstractRequestProcessor {
 			SqlUtils.closeSQLObjects(rs, sp);
 		}
 	}
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.createClient(conn, params, df);
+    }
+    
+    
 }

@@ -6,7 +6,6 @@ package ru.kinomir.processor;
 
 import java.security.InvalidParameterException;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,6 +13,8 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Map;
 import org.dom4j.Element;
+import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.DataNode;
 
 /**
  *
@@ -80,4 +81,11 @@ public class GetHallProcessor extends AbstractRequestProcessor {
         }
 
     }
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.getHall(conn, params, logger, df);
+    }
+    
+    
 }

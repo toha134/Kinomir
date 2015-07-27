@@ -14,6 +14,7 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.tools.sql.SqlUtils;
 
 /**
@@ -38,8 +39,7 @@ public class GetPerfInfoProcessor extends AbstractRequestProcessor {
             rs = sp.executeQuery();
 
             // DateTime	ShowName	Producer	Painter	Description	Remark	Actors	pu_number	
-            // NameEng	ShowType	GenreName	Hall	HallDesc	BuildingName
-
+            // NameEng	ShowType	GenreName	Hall	HallDesc	BuildingName Duration Premieredate
             Element item = null;
             SimpleDateFormat outDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
             while (rs.next()) {
@@ -66,4 +66,10 @@ public class GetPerfInfoProcessor extends AbstractRequestProcessor {
             SqlUtils.closeSQLObjects(rs, sp);
         }
     }
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.getPerfInfo(conn, params);
+    }
+
 }

@@ -15,11 +15,18 @@
             <param-name>MyWeb_GetShow</param-name>
             <param-value>ru.kinomir.processor.GetShowNewProcessor</param-value>
         </init-param>
-		<init-param>
+        <init-param>
             <param-name>MyWeb_GetDateList</param-name>
             <param-value>ru.kinomir.processor.GetDateListProcessor</param-value>
         </init-param>
-		
+        <init-param>
+            <param-name>MyWeb_GetClientInfo</param-name>
+            <param-value>ru.kinomir.processor.GetClientInfoProcessor</param-value>
+        </init-param>
+		<init-param>
+            <param-name>Wga_GetClient</param-name>
+            <param-value>ru.kinomir.processor.GetClientProcessor</param-value>
+        </init-param>
         <init-param>
             <param-name>MyWeb_GetPerformancesNew</param-name>
             <param-value>ru.kinomir.processor.GetPerformanceNewProcessor</param-value>
@@ -78,17 +85,41 @@
         </init-param>
         <init-param>
             <param-name>Wga_UnlockPlace</param-name>
-            <param-value>ru.kinomir.processor.UnlockPlaceProcessor</param-value>
+            <param-value>ru.kinomir.processor.UnLockPlaceProcessor</param-value>
         </init-param>
-		<init-param>
+        <init-param>
             <param-name>MyWeb_moviesoon</param-name>
             <param-value>ru.kinomir.processor.MyWebMoviesoonProcessor</param-value>
         </init-param>
-		<init-param>
+        <init-param>
             <param-name>MyWeb_GetOrderInfo</param-name>
             <param-value>ru.kinomir.processor.MyWebGetOrderInfoProcessor</param-value>
         </init-param>
         <init-param>
+            <param-name>WgA_PrintTicket</param-name>
+            <param-value>ru.kinomir.processor.PrintTicketProcessor</param-value>
+        </init-param>
+        <init-param>
+            <param-name>Wga_GetPerfInfo</param-name>
+            <param-value>ru.kinomir.processor.GetPerfInfoProcessor</param-value>
+        </init-param>
+        <init-param>
+            <param-name>MyWeb_CreateClient</param-name>
+            <param-value>ru.kinomir.processor.MyWebCreateClient</param-value>
+        </init-param>
+        <init-param>
+            <param-name>MyWeb_GetOrders</param-name>
+            <param-value>ru.kinomir.processor.MyWebGetOrdersProcessor</param-value>
+        </init-param>
+        <init-param>
+            <param-name>MyWeb_ShowInfo</param-name>
+            <param-value>ru.kinomir.processor.MyWebShowInfoProcessor</param-value>
+        </init-param>
+        
+        
+        
+        
+        <init-param>    
             <param-name>user_2</param-name>
             <param-value>jdbc/User1DS</param-value>
         </init-param>

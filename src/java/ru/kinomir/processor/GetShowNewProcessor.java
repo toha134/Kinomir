@@ -4,20 +4,17 @@
  */
 package ru.kinomir.processor;
 
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidParameterException;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.tools.sql.SqlUtils;
 
 /**
@@ -86,4 +83,11 @@ public class GetShowNewProcessor extends AbstractRequestProcessor {
            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.getShowNew(conn, params, logger, df);
+    }
+    
+    
 }

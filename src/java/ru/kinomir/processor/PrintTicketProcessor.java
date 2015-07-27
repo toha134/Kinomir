@@ -14,6 +14,7 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.tools.sql.SqlUtils;
 
 /**
@@ -56,8 +57,16 @@ public class PrintTicketProcessor extends AbstractRequestProcessor {
                 }
             }
             logger.debug("end processing rows");
+        } catch (SQLException ex) {
+            throw SqlUtils.convertErrorToException(rs, ex);
         } finally {
             SqlUtils.closeSQLObjects(rs, sp);
         }
     }
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.printTicket(conn, params);
+    }
+
 }

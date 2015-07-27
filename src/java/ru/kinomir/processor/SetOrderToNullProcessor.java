@@ -6,13 +6,12 @@ package ru.kinomir.processor;
 
 import java.security.InvalidParameterException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
-import ru.kinomir.datalayer.dto.SimpleErrorDTO;
+import ru.kinomir.datalayer.dto.DataNode;
+import ru.kinomir.datalayer.dto.SimpleResultData;
 
 /**
  *
@@ -23,10 +22,17 @@ public class SetOrderToNullProcessor extends AbstractRequestProcessor {
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
 
-        SimpleErrorDTO orderToNullDTO = KinomirManager.setOrderToNull(conn, params);
+        SimpleResultData orderToNullDTO = KinomirManager.setOrderToNull(conn, params);
         Element item = el.addElement("result");
-        item.addAttribute("Result", orderToNullDTO.getError());
-        item.addAttribute("ResultDescription", orderToNullDTO.getErrorDescription());
+        item.addAttribute("Result", orderToNullDTO.getResult().getResult());
+        item.addAttribute("ResultDescription", orderToNullDTO.getResult().getResultDescription());
 
     }
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.setOrderToNull(conn, params);
+    }
+    
+    
 }

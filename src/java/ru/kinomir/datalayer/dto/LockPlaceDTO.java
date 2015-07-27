@@ -4,17 +4,26 @@
  */
 package ru.kinomir.datalayer.dto;
 
+import com.google.gson.annotations.SerializedName;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import ru.kinomir.tools.sql.SqlUtils;
 
 /**
  *
  * @author Антон
  */
-public class LockPlaceDTO {
+@XmlRootElement(name = "data")
+public class LockPlaceDTO extends DataNode{
 
+    @SerializedName("price")
     private String price;
+    
+    public LockPlaceDTO(){
+        
+    }
 
     public LockPlaceDTO(ResultSet rs) throws SQLException{
         if (rs == null)
@@ -28,6 +37,7 @@ public class LockPlaceDTO {
         }
     }
 
+    @XmlElement(name = "price")
     public String getPrice() {
         return price;
     }

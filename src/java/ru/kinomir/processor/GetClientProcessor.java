@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
+import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.DataNode;
 
 /**
  *
@@ -39,7 +41,7 @@ public class GetClientProcessor extends AbstractRequestProcessor {
             while (rs.next()) {
                 Element item = el.addElement("client");
                 for (String column : columns) {
-                    item.addElement(column, rs.getObject(column) == null ? "" : rs.getObject(column).toString());
+                    item.addElement(column).setText(rs.getObject(column) == null ? "" : rs.getObject(column).toString());
                 }
             }
         } catch (SQLException ex) {
@@ -52,5 +54,10 @@ public class GetClientProcessor extends AbstractRequestProcessor {
                 sp.close();
             }
         }
+    }
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.getClient(conn, params);
     }
 }

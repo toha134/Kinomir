@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.tools.sql.SqlUtils;
 
 /**
@@ -46,7 +47,7 @@ public class GetHallSchemaNCProcessor extends AbstractRequestProcessor {
 				sp.setNull(3, java.sql.Types.INTEGER);
 			}
 			// IdPlace, PosX, PosY, Description, State, Price, BookPercent
-
+            rs = sp.executeQuery();
 			boolean isFirst = true;
 			while (rs.next()) {
 				if (isFirst) {
@@ -68,4 +69,11 @@ public class GetHallSchemaNCProcessor extends AbstractRequestProcessor {
 			SqlUtils.closeSQLObjects(rs, sp);
 		}
 	}
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.getHallSchemaNC(conn, params);
+    }
+    
+    
 }

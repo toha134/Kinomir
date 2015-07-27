@@ -4,29 +4,33 @@
  */
 package ru.kinomir.datalayer.dto;
 
+import com.google.gson.annotations.SerializedName;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.apache.log4j.Logger;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import ru.kinomir.processor.DataException;
+import ru.kinomir.tools.KinomirLog;
 import ru.kinomir.tools.sql.SqlUtils;
 
 /**
  *
  * @author Антон
  */
-public class AddPaymentResultDTO {
+@XmlRootElement(name = "data")
+public class AddPaymentResultDTO extends DataNode {
 
-	private String resultDescription = "";
-	private String result = "";
+    @SerializedName("result")
+	private SimpleResult result;
 	private String paymentId = "";
 
 	public AddPaymentResultDTO() {
 	}
 
-	public AddPaymentResultDTO(ResultSet rs, Logger logger) throws SQLException {
+	public AddPaymentResultDTO(ResultSet rs, KinomirLog logger) throws SQLException, DataException {
 		try {
 			if (rs.next()) {
-				result = rs.getString("Result");
-				resultDescription = rs.getString("ResultDescription");
+				result = new SimpleResult(rs);
 				paymentId = rs.getString("IdPayment");
 				do {
 					if (rs.getMetaData().getColumnCount() == 3) {
@@ -38,35 +42,24 @@ public class AddPaymentResultDTO {
 					}
 				} while (rs.next());
 			} else {
-				result = "1";
-				resultDescription = "No result from SP";
+                throw new DataException("1", "No result from SP");
 			}
 		} catch (SQLException ex) {
-			try {
-				resultDescription = rs.getString("ErrorDescription");
-				result = "2";
-			} catch (Exception er) {
 				throw SqlUtils.convertErrorToException(rs, ex);
-			}
 		}
 	}
 
-	public String getResultDescription() {
-		return resultDescription;
-	}
 
-	public void setResultDescription(String resultDescription) {
-		this.resultDescription = resultDescription;
-	}
-
-	public String getResult() {
+    @XmlElement(name = "result")
+	public SimpleResult getResult() {
 		return result;
 	}
 
-	public void setResult(String result) {
+	public void setResult(SimpleResult result) {
 		this.result = result;
 	}
 
+    @XmlElement(name = "idpayment")
 	public String getPaymentId() {
 		return paymentId;
 	}

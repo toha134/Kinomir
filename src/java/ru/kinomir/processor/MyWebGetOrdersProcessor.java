@@ -6,12 +6,12 @@ package ru.kinomir.processor;
 
 import java.security.InvalidParameterException;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.datalayer.dto.OrdersDTO;
 
 /**
@@ -62,6 +62,11 @@ public class MyWebGetOrdersProcessor extends AbstractRequestProcessor {
                 item.addAttribute(colName, orderLine.get(colName));
             }
         }
-
     }
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.getOrdersData(conn, params, logger, df);
+    }
+
 }

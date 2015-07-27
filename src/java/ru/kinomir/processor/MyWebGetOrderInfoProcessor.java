@@ -6,13 +6,12 @@ package ru.kinomir.processor;
 
 import java.security.InvalidParameterException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.datalayer.dto.OrderInfoDTO;
 
 /**
@@ -23,9 +22,9 @@ public class MyWebGetOrderInfoProcessor extends AbstractRequestProcessor {
 
     private static String[] orderColumns = {"begintime", "brokerage", "timepayment",
         "orderexpiretime", "orderstate", "orderprice", "orderpaysum", "orderrecalltickets",
-        "saledticketssum", "saledtickets", "ordertotalticketssum", "ordertotaltickets", "description", "idclient"};
+        "saledticketssum", "saledtickets", "ordertotalticketssum", "ordertotaltickets", "description", "idclient", "orderpass"};
     private static String[] performanceColumns = {"showname", "idperformance", "performancestarttime", "hall", "building"};
-    private static String[] placeColumns = {"idplace", "rownom", "placenom"};
+    private static String[] placeColumns = {"idplace", "rownom", "placenom", "price"};
 
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException, DataException {
@@ -64,4 +63,10 @@ public class MyWebGetOrderInfoProcessor extends AbstractRequestProcessor {
             }
         }
     }
+
+    @Override
+    protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        return KinomirManager.getOrderInfoData(conn, params);
+    }
+
 }
