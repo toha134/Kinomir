@@ -24,7 +24,7 @@ public class MyWebGetOrderInfoProcessor extends AbstractRequestProcessor {
         "orderexpiretime", "orderstate", "orderprice", "orderpaysum", "orderrecalltickets",
         "saledticketssum", "saledtickets", "ordertotalticketssum", "ordertotaltickets", "description", "idclient", "orderpass"};
     private static String[] performanceColumns = {"showname", "idperformance", "performancestarttime", "hall", "building"};
-    private static String[] placeColumns = {"idplace", "rownom", "placenom", "price"};
+    private static String[] placeColumns = {"idplace", "rownom", "placenom"};
 
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException, DataException {

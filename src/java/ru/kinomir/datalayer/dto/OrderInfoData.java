@@ -329,14 +329,14 @@ public class OrderInfoData extends DataNode {
         private final String rownom;
         @SerializedName("placenom")
         private final String placenom;
-        @SerializedName("price")
-        private final String price;
+        /*@SerializedName("price")
+        private final String price;*/
 
         public Place(ResultSet rs) throws SQLException {
             idplace = rs.getString("idplace");
             rownom = rs.getString("rownom");
             placenom = rs.getString("placenom");
-            price = rs.getString("price");
+            //price = rs.getString("price");
 
         }
 
@@ -344,7 +344,7 @@ public class OrderInfoData extends DataNode {
             idplace = "";
             rownom = "";
             placenom = "";
-            price = "";
+            //price = "";
         }
 
         @XmlAttribute(name = "idplace")
@@ -362,10 +362,10 @@ public class OrderInfoData extends DataNode {
             return placenom;
         }
 
-        @XmlAttribute(name = "price")
+        /*@XmlAttribute(name = "price")
         public String getPrice() {
             return price;
-        }
+        }*/
 
     }
 

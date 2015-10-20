@@ -35,6 +35,7 @@ public class MyWebCreateClient extends AbstractRequestProcessor {
 	public static final String EMAIL = "EMAIL";
 	public static final String CITY = "CITY";
 	public static final String BIRTHDAY = "BIRTHDAY";
+    public static final String PASSWORD = "PASSWORD";
 
 	@Override
 	protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException, DataException {
@@ -50,7 +51,7 @@ public class MyWebCreateClient extends AbstractRequestProcessor {
 		ResultSet rs = null;
 
 		try {
-			sp = conn.prepareStatement("exec dbo.MyWeb_CreateClient ?, ?, ?, ?, ?, ?, ?, ? , ?, ?");
+			sp = conn.prepareStatement("exec dbo.MyWeb_CreateClient ?, ?, ?, ?, ?, ?, ?, ? , ?, ?, ?");
 			if (!isEmpty(params.get(IDDOCUMENT))) {
 				sp.setShort(1, Short.parseShort(params.get(IDDOCUMENT)));
 			} else {
@@ -104,6 +105,11 @@ public class MyWebCreateClient extends AbstractRequestProcessor {
 				}
 			} else {
 				sp.setNull(10, java.sql.Types.TIMESTAMP);
+			}
+            if (params.get(PASSWORD) != null) {
+				sp.setString(11, URLDecoder.decode(params.get(PASSWORD), "UTF-8"));
+			} else {
+				sp.setNull(11, java.sql.Types.VARCHAR);
 			}
 			rs = sp.executeQuery();
 			while (rs.next()) {

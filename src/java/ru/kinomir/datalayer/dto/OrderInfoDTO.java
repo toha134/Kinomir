@@ -23,7 +23,7 @@ public class OrderInfoDTO {
         "orderexpiretime", "orderstate", "orderprice", "orderpaysum", "orderrecalltickets",
         "saledticketssum", "saledtickets", "ordertotalticketssum", "ordertotaltickets", "description", "idclient"};
     private static String[] performanceColumns = {"showname", "idperformance", "performancestarttime", "hall", "building"};
-    private static String[] placeColumns = {"idplace", "rownom", "placenom", "price"};
+    private static String[] placeColumns = {"idplace", "rownom", "placenom"};
     private List<Map<String, String>> orderInfo = new ArrayList<Map<String, String>>();
 
     public OrderInfoDTO(ResultSet rs) throws DataException, SQLException {

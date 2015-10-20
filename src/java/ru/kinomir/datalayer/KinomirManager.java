@@ -91,6 +91,13 @@ public class KinomirManager {
     public static final String CELLULAR = "CELLULAR";
     public static final String CITY = "CITY";
     public static final String BIRTHDAY = "BIRTHDAY";
+    public static final String PASSWORD = "PASSWORD";
+    public static final String AUTHTYPE = "AUTHTYPE";
+    private static final String TOKEN = "TOKEN";
+    private static final String PUSHTOKEN = "PUSHTOKEN";
+    private static final String APPVERSION = "APPVERSION";
+    private static final String APPTYPE = "APPTYPE";
+    private static final String DEVICETYPE = "DEVICETYPE";
 
     public static OrderInfoDTO getOrderInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
         PreparedStatement sp = null;
@@ -830,7 +837,7 @@ public class KinomirManager {
         ResultSet rs = null;
 
         try {
-            sp = conn.prepareStatement("exec dbo.MyWeb_CreateClient ?, ?, ?, ?, ?, ?, ?, ? , ?, ?");
+            sp = conn.prepareStatement("exec dbo.MyWeb_CreateClient ?, ?, ?, ?, ?, ?, ?, ? , ?, ?, ?");
             if (!StringTools.isEmpty(params.get(IDDOCUMENT))) {
                 sp.setShort(1, Short.parseShort(params.get(IDDOCUMENT)));
             } else {
@@ -884,6 +891,11 @@ public class KinomirManager {
                 }
             } else {
                 sp.setNull(10, java.sql.Types.TIMESTAMP);
+            }
+            if (params.get(PASSWORD) != null) {
+                sp.setString(11, URLDecoder.decode(params.get(PASSWORD), "UTF-8"));
+            } else {
+                sp.setNull(11, java.sql.Types.VARCHAR);
             }
             rs = sp.executeQuery();
             return new NewClientData(rs);
@@ -1245,4 +1257,96 @@ public class KinomirManager {
             SqlUtils.closeSQLObjects(rs, sp);
         }
     }
+
+    public static SimpleErrorData authClient(Connection conn, Map<String, String> params) throws SQLException, DataException {
+        PreparedStatement sp = null;
+        ResultSet rs = null;
+        try {
+            sp = conn.prepareStatement("exec dbo.MyWeb_AuthClient ?, ?, ?");
+            if (params.get(AUTHTYPE) != null) {
+                sp.setString(1, params.get(AUTHTYPE));
+            }
+            if (params.get(LOGIN) != null) {
+                sp.setString(2, params.get(LOGIN));
+            }
+            if (params.get(PASSWORD) != null) {
+                sp.setString(3, params.get(PASSWORD));
+            }
+
+            rs = sp.executeQuery();
+            return new SimpleErrorData(rs);
+        } finally {
+            SqlUtils.closeSQLObjects(rs, sp);
+        }
+    }
+
+    public static Long getCliectIdByToken(Connection conn, Map<String, String> params) throws SQLException, DataException {
+        PreparedStatement sp = null;
+        ResultSet rs = null;
+        try {
+            sp = conn.prepareStatement("exec dbo.MyWeb_GetClientIdByToken ?");
+            if (params.get(TOKEN) != null) {
+                sp.setString(1, params.get(TOKEN));
+            }
+            rs = sp.executeQuery();
+            if (rs != null && rs.next()) {
+                if (SqlUtils.hasColumn(rs, "ClientId")) {
+                    return rs.getLong("ClientId");
+                }
+            }
+        } catch (SQLException ex) {
+            throw SqlUtils.convertErrorToException(rs, ex);
+        } finally {
+            SqlUtils.closeSQLObjects(rs, sp);
+        }
+        return null;
+    }
+
+    public static SimpleErrorData registerPushToken(Connection conn, Map<String, String> params) throws SQLException, DataException {
+        PreparedStatement sp = null;
+        ResultSet rs = null;
+        try {
+            //dbo.MyWeb_RegisterPushToken @IdClient, @DeviceType, @AppType, @AppVersion, @PushToken
+            sp = conn.prepareStatement("exec dbo.MyWeb_RegisterPushToken ?, ?, ?, ?, ?");
+            if (params.get(IDCLIENT) != null) {
+                sp.setString(1, params.get(IDCLIENT));
+            }
+            if (params.get(DEVICETYPE) != null) {
+                sp.setString(2, params.get(DEVICETYPE));
+            }
+            if (params.get(APPTYPE) != null) {
+                sp.setString(3, params.get(APPTYPE));
+            }
+            if (params.get(APPVERSION) != null) {
+                sp.setString(4, params.get(APPVERSION));
+            }
+            if (params.get(PUSHTOKEN) != null) {
+                sp.setString(5, params.get(PUSHTOKEN));
+            }
+            rs = sp.executeQuery();
+            return new SimpleErrorData(rs);
+        } finally {
+            SqlUtils.closeSQLObjects(rs, sp);
+        }
+    }
+    
+    public static SimpleErrorData deletePushToken(Connection conn, Map<String, String> params) throws SQLException, DataException {
+        PreparedStatement sp = null;
+        ResultSet rs = null;
+        try {
+            //dbo.MyWeb_RegisterPushToken @IdClient, @DeviceType, @AppType, @AppVersion, @PushToken
+            sp = conn.prepareStatement("exec dbo.MyWeb_DeletePushToken ?, ?");
+            if (params.get(IDCLIENT) != null) {
+                sp.setString(1, params.get(IDCLIENT));
+            }
+            if (params.get(PUSHTOKEN) != null) {
+                sp.setString(2, params.get(PUSHTOKEN));
+            }
+            rs = sp.executeQuery();
+            return new SimpleErrorData(rs);
+        } finally {
+            SqlUtils.closeSQLObjects(rs, sp);
+        }
+    }
+
 }
