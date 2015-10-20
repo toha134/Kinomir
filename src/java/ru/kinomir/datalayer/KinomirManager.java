@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.util.Map;
 import ru.kinomir.tools.KinomirLog;
 import ru.kinomir.datalayer.dto.AddPaymentResultDTO;
+import ru.kinomir.datalayer.dto.AuthResult;
 import ru.kinomir.datalayer.dto.BuildingData;
 import ru.kinomir.datalayer.dto.ClientData;
 import ru.kinomir.datalayer.dto.ClientInfoDTO;
@@ -1258,7 +1259,7 @@ public class KinomirManager {
         }
     }
 
-    public static SimpleErrorData authClient(Connection conn, Map<String, String> params) throws SQLException, DataException {
+    public static AuthResult authClient(Connection conn, Map<String, String> params) throws SQLException, DataException {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
@@ -1274,7 +1275,7 @@ public class KinomirManager {
             }
 
             rs = sp.executeQuery();
-            return new SimpleErrorData(rs);
+            return new AuthResult(rs);
         } finally {
             SqlUtils.closeSQLObjects(rs, sp);
         }

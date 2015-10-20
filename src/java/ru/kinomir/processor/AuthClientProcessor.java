@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.AuthResult;
 import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.datalayer.dto.SimpleErrorData;
 
@@ -23,9 +24,8 @@ public class AuthClientProcessor extends AbstractRequestProcessor {
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException, DataException {
 
-        SimpleErrorData result = KinomirManager.authClient(conn, params);
-        el.addAttribute("Error", result.getError());
-        el.addAttribute("ErrorDescription", result.getErrorDescription());
+        AuthResult result = KinomirManager.authClient(conn, params);
+        el.addElement("token").setText(result.getToken());
     }
 
     @Override
