@@ -167,6 +167,12 @@ public class KinomirManager {
             if (params.get(IDUSER) != null) {
                 sp.setLong(5, Long.parseLong(params.get(IDUSER)));
             }
+            if (params.get(TOKEN) != null) {
+                Long idClient = getCliectIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
+            }
             if (params.get(IDCLIENT) != null) {
                 sp.setInt(5, Integer.parseInt(params.get(IDCLIENT)));
             } else {
@@ -189,11 +195,18 @@ public class KinomirManager {
         }
     }
 
-    public static CreateOrderData createOrder(Connection conn, Map<String, String> params, KinomirLog logger) throws SQLException, InvalidParameterException {
+    public static CreateOrderData createOrder(Connection conn, Map<String, String> params, KinomirLog logger) throws SQLException, InvalidParameterException, DataException {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
             sp = conn.prepareStatement("exec dbo.Wga_CreateOrder ?, ?, ?, ?");
+            if (params.get(TOKEN) != null) {
+                Long idClient = getCliectIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
+            }
+
             if (params.get(IDCLIENT) != null) {
                 sp.setInt(1, Integer.parseInt(params.get(IDCLIENT)));
             } else {
@@ -228,7 +241,7 @@ public class KinomirManager {
         }
     }
 
-    public static SimpleErrorData dropPlace(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static SimpleErrorData dropPlace(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
@@ -236,6 +249,13 @@ public class KinomirManager {
             if (params.get(IDPERFORMANCE) != null) {
                 sp.setLong(1, Long.parseLong(params.get(IDPERFORMANCE)));
             }
+            if (params.get(TOKEN) != null) {
+                Long idClient = getCliectIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
+            }
+
             if (params.get(IDCLIENT) != null) {
                 sp.setInt(2, Integer.parseInt(params.get(IDCLIENT)));
             } else {
@@ -248,7 +268,7 @@ public class KinomirManager {
         }
     }
 
-    public static ClientInfoDTO getClientInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static ClientInfoDTO getClientInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
@@ -263,6 +283,13 @@ public class KinomirManager {
             } else {
                 sp.setNull(1, java.sql.Types.VARCHAR);
             }
+            if (params.get(TOKEN) != null) {
+                Long idClient = getCliectIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
+            }
+
             if ((params.get(IDCLIENT) != null) && (!"".equals(params.get(IDCLIENT)))) {
                 sp.setInt(2, Integer.parseInt(params.get(IDCLIENT)));
             } else {
@@ -290,6 +317,12 @@ public class KinomirManager {
             } else {
                 sp.setNull(1, java.sql.Types.VARCHAR);
             }
+            if (params.get(TOKEN) != null) {
+                Long idClient = getCliectIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
+            }
             if ((params.get(IDCLIENT) != null) && (!"".equals(params.get(IDCLIENT)))) {
                 sp.setInt(2, Integer.parseInt(params.get(IDCLIENT)));
             } else {
@@ -302,257 +335,7 @@ public class KinomirManager {
         }
     }
 
-    /*    public static HallSchemaNCDTO getHallSchemaNC(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
-     PreparedStatement sp = null;
-     ResultSet rs = null;
-     try {
-     sp = conn.prepareStatement("exec dbo.Wga_GetHallSchemaNC ?, ?, ?");
-     if ((params.get(IDHALL) != null) && (!"null".equalsIgnoreCase(params.get(IDHALL)))) {
-     sp.setInt(1, Integer.parseInt(params.get(IDHALL)));
-     } else {
-     sp.setNull(1, java.sql.Types.INTEGER);
-     }
-     if ((params.get(IDPERFORMANCE) != null) && (!"null".equalsIgnoreCase(params.get(IDPERFORMANCE)))) {
-     sp.setInt(2, Integer.parseInt(params.get(IDPERFORMANCE)));
-     } else {
-     sp.setNull(2, java.sql.Types.INTEGER);
-     }
-     if ((params.get(IDPRICECATEGORY) != null) && (!"null".equalsIgnoreCase(IDPRICECATEGORY))) {
-     sp.setInt(3, Integer.parseInt(params.get(IDPRICECATEGORY)));
-     } else {
-     sp.setNull(3, java.sql.Types.INTEGER);
-     }
-     rs = sp.executeQuery();
-     return new HallSchemaNCDTO(rs);
-     } finally {
-     SqlUtils.closeSQLObjects(rs, sp);
-     }
-     }
-
-     public static PerfInfoDTO getPerfInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
-     PreparedStatement sp = null;
-     ResultSet rs = null;
-     try {
-     sp = conn.prepareStatement("exec dbo.Wga_GetPerfInfo ?");
-
-     if (params.get(IDPERFORMANCE) != null) {
-     sp.setInt(1, Integer.parseInt(params.get(IDPERFORMANCE)));
-     } else {
-     throw new InvalidParameterException("Parameter '" + IDPERFORMANCE + "' not found!");
-     }
-     return sp.executeQuery();
-     } finally {
-     SqlUtils.closeSQLObjects(rs, sp);
-     }
-     }
-
-     public static PerformanceNewDTO getPerformanceNew(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException {
-     PreparedStatement sp = null;
-     ResultSet rs = null;
-     try {
-     sp = conn.prepareStatement("exec dbo.MyWeb_GetPerformancesNew ?, ?, ?, ?, ?, ?");
-     if (params.get(IDBUILDING) != null) {
-     sp.setInt(1, Integer.parseInt(params.get(IDBUILDING)));
-     } else {
-     sp.setNull(1, java.sql.Types.INTEGER);
-     }
-     if (params.get(IDSHOW) != null) {
-     sp.setInt(2, Integer.parseInt(params.get(IDSHOW)));
-     } else {
-     sp.setNull(2, java.sql.Types.INTEGER);
-     }
-     if (params.get(IDGENRE) != null) {
-     sp.setInt(3, Integer.parseInt(params.get(IDGENRE)));
-     } else {
-     sp.setNull(3, java.sql.Types.INTEGER);
-     }
-     setBeginTimeParameter(params, sp, df, logger, 4);
-     setEndTimeParameter(params, sp, df, logger, 5);
-     if (params.get(IDPERFORMANCE) != null) {
-     sp.setInt(6, Integer.parseInt(params.get(IDPERFORMANCE)));
-     } else {
-     sp.setNull(6, java.sql.Types.INTEGER);
-     }
-     return sp.executeQuery();
-     } finally {
-     SqlUtils.closeSQLObjects(rs, sp);
-     }
-     }
-
-     public static PlacesDTO getPlaces(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
-     PreparedStatement sp = null;
-     ResultSet rs = null;
-     try {
-     if (params.get(IDCLIENT) != null) {
-     sp = conn.prepareStatement("exec dbo.Wga_GetPlaces ?, ?, ?, ?");
-     } else {
-     sp = conn.prepareStatement("exec Wga_GetPlacesNC ?, ?, ?");
-     }
-     if (params.get(IDPERFORMANCE) != null) {
-     sp.setLong(1, Long.parseLong(params.get(IDPERFORMANCE)));
-     }
-     if ((params.get(WITHPRICE) != null) && !(params.get(WITHPRICE).equalsIgnoreCase("null"))) {
-     sp.setShort(2, Short.parseShort(params.get(WITHPRICE)));
-     } else {
-     sp.setNull(2, java.sql.Types.SMALLINT);
-     }
-     if ((params.get(ALLPLACES) != null) && !(params.get(ALLPLACES).equalsIgnoreCase("null"))) {
-     sp.setShort(3, Short.parseShort(params.get(ALLPLACES)));
-     } else {
-     sp.setNull(3, java.sql.Types.SMALLINT);
-     }
-     if (params.get(IDCLIENT) != null) {
-     sp.setInt(4, Integer.parseInt(params.get(IDCLIENT)));
-     }
-     return sp.executeQuery();
-     } finally {
-     SqlUtils.closeSQLObjects(rs, sp);
-     }
-     }
-
-     public static PerforomanceDTO getPerformance(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException {
-     PreparedStatement sp = null;
-     ResultSet rs = null;
-     try {
-     sp = conn.prepareStatement("exec dbo.Wga_GetPerformance ?, ?, ?, ?, ?, ?, ?, ?, ?, ?");
-     // @IdBuilding int, @IdHall int, @IdShow int, @IdShowType varchar(2), @IdGenre int, 
-     // @BeginTime datetime, @EndTime datetime, @AllFields tinyint, @AsId bit
-     if (params.get(IDBUILDING) != null) {
-     sp.setInt(1, Integer.parseInt(params.get(IDBUILDING)));
-     } else {
-     sp.setNull(1, java.sql.Types.INTEGER);
-     }
-     if (params.get(IDHALL) != null) {
-     sp.setInt(2, Integer.parseInt(params.get(IDHALL)));
-     } else {
-     sp.setNull(2, java.sql.Types.INTEGER);
-     }
-     if (params.get(IDSHOW) != null) {
-     sp.setInt(3, Integer.parseInt(params.get(IDSHOW)));
-     } else {
-     sp.setNull(3, java.sql.Types.INTEGER);
-     }
-     if (params.get(IDSHOWTYPE) != null) {
-     sp.setString(4, params.get(IDSHOWTYPE));
-     } else {
-     sp.setNull(4, java.sql.Types.VARCHAR);
-     }
-     if (params.get(IDGENRE) != null) {
-     sp.setInt(5, Integer.parseInt(params.get(IDGENRE)));
-     } else {
-     sp.setNull(5, java.sql.Types.INTEGER);
-     }
-     setBeginTimeParameter(params, sp, df, logger, 6);
-     setEndTimeParameter(params, sp, df, logger, 7);
-     if (params.get(ALLFIELDS) != null) {
-     sp.setInt(8, Integer.parseInt(params.get(ALLFIELDS)));
-     } else {
-     sp.setInt(8, 1);
-     }
-     if (params.get(ASID) != null) {
-     sp.setInt(9, Integer.parseInt(params.get(ASID)));
-     } else {
-     sp.setInt(9, 1);
-     }
-     if (params.get(IDPERFORMANCE) != null) {
-     sp.setInt(10, Integer.parseInt(params.get(IDPERFORMANCE)));
-     } else {
-     sp.setNull(10, java.sql.Types.INTEGER);
-     }
-     return sp.executeQuery();
-     } finally {
-     SqlUtils.closeSQLObjects(rs, sp);
-     }
-     }
-
-     public static ShowNewDTO getShowNew(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException {
-     PreparedStatement sp = null;
-     ResultSet rs = null;
-     try {
-     sp = conn.prepareStatement("exec dbo.MyWeb_GetShow ?, ?, ?, ?, ?");
-
-     if (params.get(IDBUILDING) != null) {
-     sp.setInt(1, Integer.parseInt(params.get(IDBUILDING)));
-     } else {
-     sp.setNull(1, java.sql.Types.INTEGER);
-     }
-     if (params.get(IDGENRE) != null) {
-     sp.setInt(2, Integer.parseInt(params.get(IDGENRE)));
-     } else {
-     sp.setNull(2, java.sql.Types.INTEGER);
-     }
-     setBeginTimeParameter(params, sp, df, logger, 3);
-     setEndTimeParameter(params, sp, df, logger, 4);
-     if (params.get(IDSHOW) != null) {
-     sp.setInt(5, Integer.parseInt(params.get(IDSHOW)));
-     } else {
-     sp.setNull(5, java.sql.Types.INTEGER);
-     }
-     return sp.executeQuery();
-     } finally {
-     SqlUtils.closeSQLObjects(rs, sp);
-     }
-     }
-
-     public static ShowDTO getShow(Connection conn, Map<String, String> params, Logger logger, DateFormat df) throws SQLException, InvalidParameterException {
-     PreparedStatement sp = null;
-     ResultSet rs = null;
-     try {
-     sp = conn.prepareStatement("exec dbo.Wga_GetShow ?, ?, ?, ?, ?, ?, ?");
-
-     if (params.get(IDBUILDING) != null) {
-     sp.setInt(1, Integer.parseInt(params.get(IDBUILDING)));
-     } else {
-     sp.setNull(1, java.sql.Types.INTEGER);
-     }
-     if (params.get(IDHALL) != null) {
-     sp.setInt(2, Integer.parseInt(params.get(IDHALL)));
-     } else {
-     sp.setNull(2, java.sql.Types.INTEGER);
-     }
-     if (params.get(IDSHOWTYPE) != null) {
-     try {
-     sp.setString(3, new String(params.get(IDSHOWTYPE).getBytes("UTF-8"), "CP1251"));
-     } catch (UnsupportedEncodingException ex) {
-     logger.error("Can't convert parametr to CP1251");
-     }
-     } else {
-     sp.setNull(3, java.sql.Types.VARCHAR);
-     }
-     if (params.get(IDGENRE) != null) {
-     sp.setInt(4, Integer.parseInt(params.get(IDGENRE)));
-     } else {
-     sp.setNull(4, java.sql.Types.INTEGER);
-     }
-     setBeginTimeParameter(params, sp, df, logger, 5);
-     setEndTimeParameter(params, sp, df, logger, 6);
-     if (params.get(IDSHOW) != null) {
-     sp.setInt(7, Integer.parseInt(params.get(IDSHOW)));
-     } else {
-     sp.setNull(7, java.sql.Types.INTEGER);
-     }
-     return sp.executeQuery();
-     } finally {
-     SqlUtils.closeSQLObjects(rs, sp);
-     }
-     }
-
-     public static ZUDTO getZUInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
-     PreparedStatement sp = null;
-     ResultSet rs = null;
-     try {
-     sp = conn.prepareStatement("exec dbo.Wga_getzuinfo ?");
-     if (params.get(IDBUILDING) != null) {
-     sp.setInt(1, Integer.parseInt(params.get(IDBUILDING)));
-     } else {
-     throw new InvalidParameterException("Parameter '" + IDBUILDING + "' not found!");
-     }
-     return sp.executeQuery();
-     } finally {
-     SqlUtils.closeSQLObjects(rs, sp);
-     }
-     }*/
-    public static LockPlaceDTO lockPlace(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static LockPlaceDTO lockPlace(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
@@ -565,6 +348,13 @@ public class KinomirManager {
             } else {
                 sp.setNull(2, java.sql.Types.INTEGER);
             }
+            if (params.get(TOKEN) != null) {
+                Long idClient = getCliectIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
+            }
+
             if (params.get(IDCLIENT) != null) {
                 sp.setInt(3, Integer.parseInt(params.get(IDCLIENT)));
             } else {
@@ -587,6 +377,13 @@ public class KinomirManager {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
+            if (params.get(TOKEN) != null) {
+                Long idClient = getCliectIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
+            }
+
             if (params.containsKey(IDCLIENT)) {
                 sp = conn.prepareStatement("exec dbo.MyWeb_GetOrders ?, ?, ?");
                 sp.setInt(3, Integer.parseInt(params.get(IDCLIENT)));
@@ -606,6 +403,12 @@ public class KinomirManager {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
+            if (params.get(TOKEN) != null) {
+                Long idClient = getCliectIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
+            }
             if (params.containsKey(IDCLIENT)) {
                 sp = conn.prepareStatement("exec dbo.MyWeb_GetOrders ?, ?, ?");
                 sp.setInt(3, Integer.parseInt(params.get(IDCLIENT)));
@@ -621,39 +424,7 @@ public class KinomirManager {
         }
     }
 
-    /*public static MoovieSoonDTO getMoovieSoon(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
-     PreparedStatement sp = null;
-     ResultSet rs = null;
-     try {
-     sp = conn.prepareStatement("exec dbo.MyWeb_moviesoon ?");
-
-     if (params.get(WEEKS) != null) {
-     sp.setInt(1, Integer.parseInt(params.get(WEEKS)));
-     } else {
-     sp.setNull(1, java.sql.Types.INTEGER);
-     }
-     return sp.executeQuery();
-     } finally {
-     SqlUtils.closeSQLObjects(rs, sp);
-     }
-     }
-
-     public static ShowInfoDTO getShowInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
-     PreparedStatement sp = null;
-     ResultSet rs = null;
-     try {
-     sp = conn.prepareStatement("exec dbo.MyWeb_ShowInfo ?");
-     if (params.get(IDSHOW) != null) {
-     sp.setInt(1, Integer.parseInt(params.get(IDSHOW)));
-     } else {
-     sp.setNull(1, java.sql.Types.INTEGER);
-     }
-     return sp.executeQuery();
-     } finally {
-     SqlUtils.closeSQLObjects(rs, sp);
-     }
-     }*/
-    public static SimpleResultData setOrderDescription(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+     public static SimpleResultData setOrderDescription(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
@@ -688,7 +459,7 @@ public class KinomirManager {
         }
     }
 
-    public static SimpleResultData unlockPlace(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static SimpleResultData unlockPlace(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
@@ -700,6 +471,12 @@ public class KinomirManager {
                 sp.setInt(2, Integer.parseInt(params.get(IDPLACE)));
             } else {
                 sp.setNull(2, java.sql.Types.INTEGER);
+            }
+            if (params.get(TOKEN) != null) {
+                Long idClient = getCliectIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
             }
             if (params.get(IDCLIENT) != null) {
                 sp.setInt(3, Integer.parseInt(params.get(IDCLIENT)));
@@ -957,6 +734,12 @@ public class KinomirManager {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
+            if (params.get(TOKEN) != null) {
+                Long idClient = getCliectIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
+            }
             if (params.get(KinomirManager.IDCLIENT) != null) {
                 sp = conn.prepareStatement("exec dbo.Wga_GetPlaces ?, ?, ?, ?");
                 sp.setInt(4, Integer.parseInt(params.get(KinomirManager.IDCLIENT)));
@@ -1288,6 +1071,8 @@ public class KinomirManager {
             sp = conn.prepareStatement("exec dbo.MyWeb_GetClientIdByToken ?");
             if (params.get(TOKEN) != null) {
                 sp.setString(1, params.get(TOKEN));
+            } else {
+                return null;
             }
             rs = sp.executeQuery();
             if (rs != null && rs.next()) {
@@ -1309,6 +1094,12 @@ public class KinomirManager {
         try {
             //dbo.MyWeb_RegisterPushToken @IdClient, @DeviceType, @AppType, @AppVersion, @PushToken
             sp = conn.prepareStatement("exec dbo.MyWeb_RegisterPushToken ?, ?, ?, ?, ?");
+            if (params.get(TOKEN) != null) {
+                Long idClient = getCliectIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
+            }
             if (params.get(IDCLIENT) != null) {
                 sp.setString(1, params.get(IDCLIENT));
             }
@@ -1330,13 +1121,19 @@ public class KinomirManager {
             SqlUtils.closeSQLObjects(rs, sp);
         }
     }
-    
+
     public static SimpleErrorData deletePushToken(Connection conn, Map<String, String> params) throws SQLException, DataException {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
             //dbo.MyWeb_RegisterPushToken @IdClient, @DeviceType, @AppType, @AppVersion, @PushToken
             sp = conn.prepareStatement("exec dbo.MyWeb_DeletePushToken ?, ?");
+            if (params.get(TOKEN) != null) {
+                Long idClient = getCliectIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
+            }
             if (params.get(IDCLIENT) != null) {
                 sp.setString(1, params.get(IDCLIENT));
             }

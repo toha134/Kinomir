@@ -7,6 +7,7 @@ package ru.kinomir.format;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.SerializedName;
 import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import javax.management.ObjectName;
@@ -32,26 +33,51 @@ class JsonFormatter implements ResultFormatter {
 
     @Override
     public String format(SQLException ex) {
-        StringBuilder result = new StringBuilder();
-        result.append("{error: ").append(ex.getSQLState())
-                .append("; errorMessage:").append(ObjectName.quote(ex.getMessage())).append("}");
-        return result.toString();
+        ErrorObject error = new ErrorObject(ex.getSQLState(), ex.getMessage());
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithModifiers(Modifier.STATIC)
+                .create();
+        return gson.toJson(error);
     }
 
     @Override
     public String format(DataException ex) {
-        StringBuilder result = new StringBuilder();
-        result.append("{error: ").append(ex.getErrorCode())
-                .append("; errorMessage:").append(ObjectName.quote(ex.getMessage())).append("}");
-        
-        return result.toString();
+        ErrorObject error = new ErrorObject(ex.getErrorCode(), ex.getMessage());
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithModifiers(Modifier.STATIC)
+                .create();
+        return gson.toJson(error);
     }
 
     @Override
     public String format(Exception ex, boolean isUnknown) {
-        StringBuilder result = new StringBuilder();
-        result.append("{error: \"0\"; errorMessage:").append(ObjectName.quote(ex.getMessage())).append("}");
-        return result.toString();
+        ErrorObject error = new ErrorObject("0", ex.getMessage());
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithModifiers(Modifier.STATIC)
+                .create();
+        return gson.toJson(error);
+    }
+
+    private static class ErrorObject {
+
+        @SerializedName("error")
+        private String error;
+        @SerializedName("errorMessage")
+        private String errorMessage;
+
+        public ErrorObject(String error, String errorMessage) {
+            this.error = error;
+            this.errorMessage = errorMessage;
+        }
+
+        public String getError() {
+            return error;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
+
     }
 
 }
