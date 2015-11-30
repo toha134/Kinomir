@@ -20,7 +20,7 @@ import ru.kinomir.datalayer.dto.SimpleResultData;
 public class UnLockPlaceProcessor extends AbstractRequestProcessor {
 
     @Override
-    protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
+    protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException, DataException {
         SimpleResultData result = KinomirManager.unlockPlace(conn, params);
         Element item = el.addElement("result");
         item.addAttribute("Result", result.getResult().getResult());

@@ -44,6 +44,7 @@ public class SecurityFilter implements Filter {
 			X509Certificate cert = certs[0];
 			certSerial = Long.toHexString(cert.getSerialNumber().longValue());
 		}
+        
 	}	
 	
 	private void doAfterProcessing(ServletRequest request, ServletResponse response)

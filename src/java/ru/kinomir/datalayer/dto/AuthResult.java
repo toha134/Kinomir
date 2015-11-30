@@ -20,6 +20,8 @@ public class AuthResult extends DataNode{
 
     @SerializedName("Token")
     private String token;
+    @SerializedName("clientData")
+    private DataNode clientData;
     
     public AuthResult(){
         
@@ -41,4 +43,14 @@ public class AuthResult extends DataNode{
     public String getToken() {
         return token;
     }
+
+    public void setClientData(DataNode clientData) {
+        this.clientData = clientData;
+    }
+    
+    @XmlElement(name = "clientData")
+    public DataNode getClientData() {
+        return clientData;
+    }
+    
 }

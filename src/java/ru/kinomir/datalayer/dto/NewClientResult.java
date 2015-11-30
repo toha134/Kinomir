@@ -22,14 +22,23 @@ public class NewClientResult {
     String IdClient;
     @SerializedName("Name")
     String Name;
-    
-    public NewClientResult(){
-        
+    @SerializedName("Token")
+    String Token;
+    @SerializedName("EmailCode")
+    String EmailCode;
+    @SerializedName("CellularCode")
+    String CellularCode;
+
+    public NewClientResult() {
+
     }
 
     public NewClientResult(ResultSet rs) throws SQLException {
         IdClient = rs.getString("IdClient");
         Name = rs.getString("Name");
+        Token = rs.getString("Token");
+        EmailCode = rs.getString("EmailCode");
+        CellularCode = rs.getString("CellularCode");
     }
 
     @XmlAttribute(name = "IdClient")
@@ -40,6 +49,21 @@ public class NewClientResult {
     @XmlAttribute(name = "Name")
     public String getName() {
         return Name;
+    }
+
+    @XmlAttribute(name="Token")
+    public String getToken() {
+        return Token;
+    }
+
+    @XmlAttribute(name="EmailCode")
+    public String getEmailCode() {
+        return EmailCode;
+    }
+
+    @XmlAttribute(name="CellularCode")
+    public String getCellularCode() {
+        return CellularCode;
     }
 
 }

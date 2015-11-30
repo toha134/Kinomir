@@ -16,6 +16,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.dto.DataNode;
+import ru.kinomir.queue.QueueSender;
 import ru.kinomir.tools.KinomirLog;
 
 /**
@@ -24,6 +25,9 @@ import ru.kinomir.tools.KinomirLog;
  */
 public abstract class AbstractRequestProcessor {
 
+    protected static final String QUEUE_EMAIL = "email";
+    protected static final String QUEUE_SMS = "sms";
+    protected static final String QUEUE_TICKET = "ticket";
     /**
      *
      */
@@ -51,13 +55,11 @@ public abstract class AbstractRequestProcessor {
                 logger.error("Processing error: " + ex.getMessage());
                 logger.debug("Processing error: " + ex.getMessage(), ex);
                 result = formatter.format(ex);
-            }
-             catch (DataException ex) {
+            } catch (DataException ex) {
                 logger.error("Processing error: " + ex.getMessage());
                 logger.debug("Processing error: " + ex.getMessage(), ex);
                 result = formatter.format(ex);
-            }
-             catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.error("Processing error: " + ex.getMessage());
                 logger.debug("Processing error: " + ex.getMessage(), ex);
                 result = formatter.format(ex, true);
@@ -105,4 +107,15 @@ public abstract class AbstractRequestProcessor {
     }
 
     protected abstract DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException;
+
+    protected void sendToQueue(Object value, String queue) {
+        if (QUEUE_SMS.equals(queue)) {
+            QueueSender.getInstance().sendToQueue(value, getInitParam("smsQueueName"), getInitParam("smsQueueHost"), getInitParam("smsQueueUser"), getInitParam("smsQueuePassword"), getInitParam("smsQueuePort"), getInitParam("smsQueueVirtualHost"));
+        } else if (QUEUE_EMAIL.equals(queue)) {
+            QueueSender.getInstance().sendToQueue(value, getInitParam("emailQueueName"), getInitParam("emailQueueHost"), getInitParam("emailQueueUser"), getInitParam("emailQueuePassword"), getInitParam("emailQueuePort"), getInitParam("emailQueueVirtualHost"));
+        } else if (QUEUE_TICKET.equals(queue)) {
+            QueueSender.getInstance().sendToQueue(value, getInitParam("ticketQueueName"), getInitParam("ticketQueueHost"), getInitParam("ticketQueueUser"), getInitParam("ticketQueuePassword"), getInitParam("ticketQueuePort"), getInitParam("ticketQueueVirtualHost"));
+        }
+    }
+
 }

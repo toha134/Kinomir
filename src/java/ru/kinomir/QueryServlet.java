@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -84,7 +85,7 @@ public class QueryServlet extends HttpServlet {
                 answer = String.format("<data error=\"1\" message=\"%s\"/>", errorMessage == null ? "Can't process query" : errorMessage);
             }
             response.setCharacterEncoding("UTF-8");
-            response.setContentType("text/" + getFormat(request.getParameterMap()));
+            response.setContentType("text/" + getFormat(request));
             PrintWriter out = response.getWriter();
             try {
                 out.write(answer);
@@ -154,13 +155,14 @@ public class QueryServlet extends HttpServlet {
 
     }
 
-    private String getFormat(Map<String, String> requestParams) {
-        for (String parameter : requestParams.keySet()) {
+    private String getFormat(HttpServletRequest request) {
+        for (Iterator it = request.getParameterMap().keySet().iterator(); it.hasNext();) {
+            String parameter = (String) it.next();
             if (parameter.equalsIgnoreCase("format")) {
-                if (StringTools.isEmpty(requestParams.get(parameter))) {
+                if (StringTools.isEmpty(request.getParameter(parameter))) {
                     return "xml";
                 }
-                if ("json".equalsIgnoreCase(requestParams.get(parameter))) {
+                if ("json".equalsIgnoreCase(request.getParameter(parameter))) {
                     return "json";
                 }
             }

@@ -34,6 +34,7 @@ import ru.kinomir.datalayer.dto.MoviesoonData;
 import ru.kinomir.datalayer.dto.NewClientData;
 import ru.kinomir.datalayer.dto.OrderInfoData;
 import ru.kinomir.datalayer.dto.OrdersInfoData;
+import ru.kinomir.datalayer.dto.PasswordRestoreResult;
 import ru.kinomir.datalayer.dto.PerfInfoData;
 import ru.kinomir.datalayer.dto.PerformanceData;
 import ru.kinomir.datalayer.dto.PerformanceNewData;
@@ -70,6 +71,9 @@ public class KinomirManager {
     public static final String IDPLACE = "IDPLACE";
     public static final String IDORDER = "IDORDER";
     public static final String DESCRIPTION = "DESCRIPTION";
+    public static final String DESCRIPTION2 = "DESCRIPTION2";
+    public static final String DESCRIPTION3 = "DESCRIPTION3";
+    public static final String DESCRIPTION4 = "DESCRIPTION4";
     public static final String WEEKS = "WEEKS";
     public static final String WITHPRICE = "WITHPRICE";
     public static final String ALLPLACES = "ALLPLACES";
@@ -94,11 +98,21 @@ public class KinomirManager {
     public static final String BIRTHDAY = "BIRTHDAY";
     public static final String PASSWORD = "PASSWORD";
     public static final String AUTHTYPE = "AUTHTYPE";
-    private static final String TOKEN = "TOKEN";
+    public static final String TOKEN = "TOKEN";
     private static final String PUSHTOKEN = "PUSHTOKEN";
     private static final String APPVERSION = "APPVERSION";
     private static final String APPTYPE = "APPTYPE";
     private static final String DEVICETYPE = "DEVICETYPE";
+
+    private static final String FAX = "FAX";
+    private static final String ADDRESS = "ADDRESS";
+    private static final String SECADDRESS = "SECADDRESS";
+    private static final String ISSTOPPED = "ISSTOPPED";
+    public static final String CARDSTATE = "CARDSTATE";
+    public static final String CARDDESCRIPTION = "CARDDESCRIPTION";
+    public static final String SUBSTAGS = "SUBSTAGS";
+    public static final String AGREEMENT = "AGREEMENT";
+    public static final String ADDSTRING = "ADDSTRING";
 
     public static OrderInfoDTO getOrderInfo(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
         PreparedStatement sp = null;
@@ -302,6 +316,23 @@ public class KinomirManager {
         }
     }
 
+    public static ClientInfoDTO getClientInfoByToken(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        PreparedStatement sp = null;
+        ResultSet rs = null;
+        try {
+            sp = conn.prepareStatement("exec dbo.MyWeb_GetClientInfoByToken ?");
+            if (!StringTools.isEmpty(params.get(TOKEN))) {
+                sp.setString(1, params.get(TOKEN));
+            } else {
+                throw new DataException("1", "No 'token' param");
+            }
+            rs = sp.executeQuery();
+            return new ClientInfoDTO(rs);
+        } finally {
+            SqlUtils.closeSQLObjects(rs, sp);
+        }
+    }
+
     public static ClientInfoData getClientInfoData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
         PreparedStatement sp = null;
         ResultSet rs = null;
@@ -327,6 +358,27 @@ public class KinomirManager {
                 sp.setInt(2, Integer.parseInt(params.get(IDCLIENT)));
             } else {
                 sp.setNull(2, java.sql.Types.INTEGER);
+            }
+            rs = sp.executeQuery();
+            return new ClientInfoData(rs);
+        } finally {
+            SqlUtils.closeSQLObjects(rs, sp);
+        }
+    }
+
+    public static ClientInfoData getClientInfoDataByToken(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
+        PreparedStatement sp = null;
+        ResultSet rs = null;
+        try {
+            if (!StringTools.isEmpty(params.get(TOKEN))) {
+                sp = conn.prepareStatement("exec dbo.MyWeb_GetClientInfoByToken ?");
+            } else {
+                throw new DataException("1", "No 'token' param");
+            }
+            if (!StringTools.isEmpty(params.get(TOKEN))) {
+                sp.setString(1, params.get(TOKEN));
+            } else {
+                sp.setNull(1, java.sql.Types.VARCHAR);
             }
             rs = sp.executeQuery();
             return new ClientInfoData(rs);
@@ -424,7 +476,7 @@ public class KinomirManager {
         }
     }
 
-     public static SimpleResultData setOrderDescription(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
+    public static SimpleResultData setOrderDescription(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
@@ -1142,6 +1194,197 @@ public class KinomirManager {
             }
             rs = sp.executeQuery();
             return new SimpleErrorData(rs);
+        } finally {
+            SqlUtils.closeSQLObjects(rs, sp);
+        }
+    }
+
+    public static SimpleErrorData updateClientInfo(Connection conn, Map<String, String> params, KinomirLog logger, DateFormat df) throws SQLException, InvalidParameterException, DataException {
+        PreparedStatement sp = null;
+        ResultSet rs = null;
+        try {
+            // @IdClient, @IdDocument, @Description, @Description2, @Description3, @Description4, @AddString, @Phone, 
+            // @Fax, @Address, @SecAddress, @City, @IsStopped, @EndTime, @CardState, @CardDescription, @Email, @FirstName, 
+            // @Patronymic, @Cellular, @Birthday, @Login, @Password, @SubsTags, @Agreement
+            sp = conn.prepareStatement("exec dbo.UpdateClientAttr ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?");
+            if (params.get(TOKEN) != null) {
+                Long idClient = getCliectIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
+            }
+            try {
+                if (params.get(IDCLIENT) != null) {
+                    sp.setInt(1, Integer.parseInt(params.get(IDCLIENT)));
+                } else {
+                    sp.setNull(1, java.sql.Types.INTEGER);
+                }
+
+                if (params.get(IDDOCUMENT) != null) {
+                    sp.setInt(2, Integer.parseInt(params.get(IDDOCUMENT)));
+                } else {
+                    sp.setNull(2, java.sql.Types.INTEGER);
+                }
+                if (params.get(DESCRIPTION) != null) {
+                    sp.setString(3, params.get(DESCRIPTION));
+                } else {
+                    sp.setNull(3, java.sql.Types.VARCHAR);
+                }
+                if (params.get(DESCRIPTION2) != null) {
+                    sp.setString(4, params.get(DESCRIPTION2));
+                } else {
+                    sp.setNull(4, java.sql.Types.VARCHAR);
+                }
+                if (params.get(DESCRIPTION3) != null) {
+                    sp.setString(5, params.get(DESCRIPTION3));
+                } else {
+                    sp.setNull(5, java.sql.Types.VARCHAR);
+                }
+                if (params.get(DESCRIPTION4) != null) {
+                    sp.setString(6, params.get(DESCRIPTION4));
+                } else {
+                    sp.setNull(6, java.sql.Types.VARCHAR);
+                }
+                if (params.get(ADDSTRING) != null) {
+                    sp.setString(7, params.get(ADDSTRING));
+                } else {
+                    sp.setNull(7, java.sql.Types.VARCHAR);
+                }
+                if (params.get(PHONE) != null) {
+                    sp.setString(8, params.get(PHONE));
+                } else {
+                    sp.setNull(8, java.sql.Types.VARCHAR);
+                }
+                if (params.get(FAX) != null) {
+                    sp.setString(9, params.get(FAX));
+                } else {
+                    sp.setNull(9, java.sql.Types.VARCHAR);
+                }
+                if (params.get(ADDRESS) != null) {
+                    sp.setString(10, URLDecoder.decode(params.get(ADDRESS), "UTF-8"));
+                } else {
+                    sp.setNull(10, java.sql.Types.VARCHAR);
+                }
+                if (params.get(SECADDRESS) != null) {
+                    sp.setString(11, URLDecoder.decode(params.get(SECADDRESS), "UTF-8"));
+                } else {
+                    sp.setNull(11, java.sql.Types.VARCHAR);
+                }
+                if (params.get(CITY) != null) {
+                    sp.setString(12, URLDecoder.decode(params.get(CITY), "UTF-8"));
+                } else {
+                    sp.setNull(12, java.sql.Types.VARCHAR);
+                }
+                if (params.get(ISSTOPPED) != null) {
+                    sp.setShort(13, Short.parseShort(params.get(ISSTOPPED)));
+                } else {
+                    sp.setNull(13, java.sql.Types.TINYINT);
+                }
+                setEndTimeParameter(params, sp, df, logger, 14);
+                if (params.get(CARDSTATE) != null) {
+                    sp.setString(15, URLDecoder.decode(params.get(CARDSTATE), "UTF-8"));
+                } else {
+                    sp.setNull(15, java.sql.Types.VARCHAR);
+                }
+                if (params.get(CARDDESCRIPTION) != null) {
+                    sp.setString(16, URLDecoder.decode(params.get(CARDDESCRIPTION), "UTF-8"));
+                } else {
+                    sp.setNull(16, java.sql.Types.VARCHAR);
+                }
+                if (params.get(EMAIL) != null) {
+                    sp.setString(17, URLDecoder.decode(params.get(EMAIL), "UTF-8"));
+                } else {
+                    sp.setNull(17, java.sql.Types.VARCHAR);
+                }
+
+                if (params.get(FIRSTNAME) != null) {
+                    sp.setString(18, URLDecoder.decode(params.get(FIRSTNAME), "UTF-8"));
+                } else {
+                    sp.setNull(18, java.sql.Types.VARCHAR);
+                }
+
+                if (params.get(PATRONYMIC) != null) {
+                    sp.setString(19, URLDecoder.decode(params.get(PATRONYMIC), "UTF-8"));
+                } else {
+                    sp.setNull(19, java.sql.Types.VARCHAR);
+                }
+
+                if (params.get(CELLULAR) != null) {
+                    sp.setString(20, URLDecoder.decode(params.get(CELLULAR), "UTF-8"));
+                } else {
+                    sp.setNull(20, java.sql.Types.VARCHAR);
+                }
+
+                if (params.get(BIRTHDAY) != null) {
+                    try {
+                        sp.setTimestamp(21, new Timestamp(df.parse(params.get(BIRTHDAY)).getTime()));
+                    } catch (ParseException ex) {
+                        sp.setTimestamp(21, new Timestamp(System.currentTimeMillis()));
+                    }
+
+                } else {
+                    sp.setNull(21, java.sql.Types.TIMESTAMP);
+                }
+                if (params.get(LOGIN) != null) {
+                    sp.setString(22, params.get(LOGIN));
+                } else {
+                    sp.setNull(22, java.sql.Types.VARCHAR);
+                }
+                if (params.get(PASSWORD) != null) {
+                    sp.setString(23, params.get(PASSWORD));
+                } else {
+                    sp.setNull(23, java.sql.Types.VARCHAR);
+                }
+                if (params.get(SUBSTAGS) != null) {
+                    sp.setString(24, params.get(SUBSTAGS));
+                } else {
+                    sp.setNull(24, java.sql.Types.VARCHAR);
+                }
+                if (params.get(AGREEMENT) != null) {
+                    sp.setString(24, params.get(AGREEMENT));
+                } else {
+                    sp.setNull(24, java.sql.Types.VARCHAR);
+                }
+
+            } catch (UnsupportedEncodingException ex) {
+
+            }
+
+            rs = sp.executeQuery();
+            return new SimpleErrorData(rs);
+        } finally {
+            SqlUtils.closeSQLObjects(rs, sp);
+        }
+    }
+
+    public static PasswordRestoreResult restorePassword(Connection conn, Map<String, String> params) throws SQLException, DataException {
+        PreparedStatement sp = null;
+        ResultSet rs = null;
+        try {
+            //dbo.MyWeb_RegisterPushToken @IdClient, @DeviceType, @AppType, @AppVersion, @PushToken
+            sp = conn.prepareStatement("exec dbo.MyWeb_PasswordRestore ?, ?, ?, ?");
+            if (!StringTools.isEmpty(params.get(TOKEN))) {
+                sp.setString(1, params.get(TOKEN));
+            } else {
+                sp.setNull(1, java.sql.Types.VARCHAR);
+            }
+            if (params.get(AUTHTYPE) != null) {
+                sp.setString(2, params.get(AUTHTYPE));
+            } else {
+                sp.setNull(2, java.sql.Types.VARCHAR);
+            }
+            if (params.get(LOGIN) != null) {
+                sp.setString(3, params.get(LOGIN));
+            } else {
+                sp.setNull(3, java.sql.Types.VARCHAR);
+            }
+            if (params.get(PASSWORD) != null) {
+                sp.setString(4, params.get(PASSWORD));
+            } else {
+                sp.setNull(4, java.sql.Types.VARCHAR);
+            }
+            rs = sp.executeQuery();
+            return new PasswordRestoreResult(rs);
         } finally {
             SqlUtils.closeSQLObjects(rs, sp);
         }

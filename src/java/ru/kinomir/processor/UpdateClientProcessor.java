@@ -1,4 +1,3 @@
-
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -12,25 +11,26 @@ import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
 import ru.kinomir.datalayer.dto.DataNode;
-import ru.kinomir.datalayer.dto.LockPlaceDTO;
+import ru.kinomir.datalayer.dto.SimpleErrorData;
+
 
 /**
  *
  * @author Admin
  */
-public class LockPlaceProcessor extends AbstractRequestProcessor {
+public class UpdateClientProcessor extends AbstractRequestProcessor {
 
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException, DataException {
 
-        LockPlaceDTO lockPlaceDTO = KinomirManager.lockPlace(conn, params);
-        Element item = el.addElement("price");
-        item.setText(lockPlaceDTO.getPrice());
+        SimpleErrorData result = KinomirManager.updateClientInfo(conn, params, logger, df);
+        el.addAttribute("Error", result.getError());
+        el.addAttribute("ErrorDescription", result.getErrorDescription());
     }
 
     @Override
     protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
-        return KinomirManager.lockPlace(conn, params);
+        return KinomirManager.updateClientInfo(conn, params, logger, df);
     }
     
     

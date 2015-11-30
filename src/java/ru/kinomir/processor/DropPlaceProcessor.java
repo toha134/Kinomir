@@ -21,7 +21,7 @@ import ru.kinomir.datalayer.dto.SimpleErrorData;
 public class DropPlaceProcessor extends AbstractRequestProcessor {
 
     @Override
-    protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
+    protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException, DataException {
 
         SimpleErrorData result = KinomirManager.dropPlace(conn, params);
         el.addAttribute("Error", result.getError());

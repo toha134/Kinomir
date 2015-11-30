@@ -8,6 +8,8 @@ package ru.kinomir.datalayer.dto;
 import com.google.gson.annotations.SerializedName;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.GregorianCalendar;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -46,6 +48,8 @@ public class Ticket {
     private final String ShowName;
     @SerializedName("agelimit")
     private final String agelimit;
+    
+    private static final SimpleDateFormat outDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
     public Ticket() {
         IdTicketOperation = "";
@@ -72,7 +76,7 @@ public class Ticket {
         Discount = rs.getString("Discount");
         Series = rs.getString("Series");
         TickNum = rs.getString("TickNum");
-        datetime = rs.getString("datetime");
+        datetime = outDateFormat.format(rs.getTimestamp("datetime", new GregorianCalendar()));
         HallName = rs.getString("HallName");
         BuildingName = rs.getString("BuildingName");
         Row = rs.getString("Row");

@@ -15,6 +15,8 @@ import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
 import ru.kinomir.datalayer.dto.DataNode;
+import ru.kinomir.datalayer.dto.PrintTicketData;
+import ru.kinomir.datalayer.dto.Ticket;
 import ru.kinomir.tools.sql.SqlUtils;
 
 /**
@@ -24,44 +26,27 @@ import ru.kinomir.tools.sql.SqlUtils;
 public class PrintTicketProcessor extends AbstractRequestProcessor {
 
     @Override
-    protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException {
-        ResultSet rs = null;
-        PreparedStatement sp = null;
+    protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException, DataException {
 
-        String[] ticketFields = {"IdTicketOperation", "IdPerformance", "IdPlace", "Price", "Discount", "Series",
-            "TickNum", "datetime", "HallName", "BuildingName", "Row", "Place", "ShowName", "agelimit"};
-
-        try {
-            sp = conn.prepareStatement("exec dbo.WgA_PrintTicket ?");
-
-            if (params.get(KinomirManager.IDORDER) != null) {
-                sp.setInt(1, Integer.parseInt(params.get(KinomirManager.IDORDER)));
-            } else {
-                sp.setNull(1, java.sql.Types.INTEGER);
-            }
-            rs = sp.executeQuery();
-            Element item = null;
-            SimpleDateFormat outDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-            while (rs.next()) {
-                item = el.addElement("ticket");
-                for (String attr : ticketFields) {
-                    if ("datetime".equals(attr)) {
-                        item.addAttribute("datetime", outDateFormat.format(rs.getTimestamp("datetime", new GregorianCalendar())));
-                    } else {
-                        if (rs.getString(attr) != null) {
-                            item.addAttribute(attr, rs.getString(attr));
-                        } else {
-                            item.addAttribute(attr, "");
-                        }
-                    }
-                }
-            }
-            logger.debug("end processing rows");
-        } catch (SQLException ex) {
-            throw SqlUtils.convertErrorToException(rs, ex);
-        } finally {
-            SqlUtils.closeSQLObjects(rs, sp);
+        PrintTicketData tickets = KinomirManager.printTicket(conn, params);
+        for (Ticket ticket : tickets.getTickets()) {
+            Element item = el.addElement("ticket");
+            item.addAttribute("IdTicketOperation", ticket.getIdTicketOperation());
+            item.addAttribute("IdPerformance", ticket.getIdPerformance());
+            item.addAttribute("IdPlace", ticket.getIdPlace());
+            item.addAttribute("Price", ticket.getPrice());
+            item.addAttribute("Discount", ticket.getDiscount());
+            item.addAttribute("Series", ticket.getSeries());
+            item.addAttribute("TickNum", ticket.getTickNum());
+            item.addAttribute("datetime", ticket.getdatetime());
+            item.addAttribute("HallName", ticket.getHallName());
+            item.addAttribute("BuildingName", ticket.getBuildingName());
+            item.addAttribute("Row", ticket.getRow());
+            item.addAttribute("Place", ticket.getPlace());
+            item.addAttribute("ShowName", ticket.getShowName());
+            item.addAttribute("agelimit", ticket.getagelimit());
         }
+        sendToQueue(tickets, QUEUE_TICKET);
     }
 
     @Override

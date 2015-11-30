@@ -25,7 +25,7 @@ class JsonFormatter implements ResultFormatter {
 
     @Override
     public String format(DataNode dataNode) throws Exception {
-        Gson gson = new GsonBuilder()
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                 .excludeFieldsWithModifiers(Modifier.STATIC)
                 .create();
         return gson.toJson(dataNode);
@@ -34,7 +34,7 @@ class JsonFormatter implements ResultFormatter {
     @Override
     public String format(SQLException ex) {
         ErrorObject error = new ErrorObject(ex.getSQLState(), ex.getMessage());
-        Gson gson = new GsonBuilder()
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                 .excludeFieldsWithModifiers(Modifier.STATIC)
                 .create();
         return gson.toJson(error);
@@ -43,7 +43,7 @@ class JsonFormatter implements ResultFormatter {
     @Override
     public String format(DataException ex) {
         ErrorObject error = new ErrorObject(ex.getErrorCode(), ex.getMessage());
-        Gson gson = new GsonBuilder()
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                 .excludeFieldsWithModifiers(Modifier.STATIC)
                 .create();
         return gson.toJson(error);
@@ -52,7 +52,7 @@ class JsonFormatter implements ResultFormatter {
     @Override
     public String format(Exception ex, boolean isUnknown) {
         ErrorObject error = new ErrorObject("0", ex.getMessage());
-        Gson gson = new GsonBuilder()
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                 .excludeFieldsWithModifiers(Modifier.STATIC)
                 .create();
         return gson.toJson(error);
