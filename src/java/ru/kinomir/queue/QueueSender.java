@@ -7,9 +7,11 @@ package ru.kinomir.queue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.rabbitmq.client.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.MessageProperties;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 
@@ -62,7 +64,8 @@ public class QueueSender {
             channel = connection.createChannel();
             channel.queueDeclare(queueName, true, false, false, null);
             String message = convertToString(data);
-            channel.basicPublish("", queueName, null, message.getBytes());
+            logger.info("Message to queue: " + message);
+            channel.basicPublish("", queueName, MessageProperties.MINIMAL_PERSISTENT_BASIC, message.getBytes());
             logger.info("Message was sent");
         } catch (Exception ex) {
             logger.error("Uneble send message: " + convertToString(data));

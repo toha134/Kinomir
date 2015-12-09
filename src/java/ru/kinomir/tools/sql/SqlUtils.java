@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import ru.kinomir.tools.KinomirLog;
 
 /**
  *
@@ -15,10 +16,15 @@ import java.sql.SQLException;
  */
 public class SqlUtils {
 
+    private static final KinomirLog logger = KinomirLog.getLogger(SqlUtils.class);
+
     public static SQLException convertErrorToException(ResultSet rs, SQLException originalEx) {
         SQLException result = null;
+        if (originalEx != null) {
+            logger.error("SQL error in query processing : " + originalEx.getMessage(), originalEx);
+        }
         try {
-            if (rs != null){
+            if (rs != null) {
                 result = new SQLException(rs.getString("ErrorDescription"), rs.getString("Error"), originalEx);
             } else {
                 result = new SQLException("No result for query", "1", originalEx);
@@ -40,15 +46,15 @@ public class SqlUtils {
         } catch (SQLException ex) {
         }
     }
-    
+
     public static boolean hasColumn(ResultSet rs, String columnName) throws SQLException {
-    ResultSetMetaData rsmd = rs.getMetaData();
-    int columns = rsmd.getColumnCount();
-    for (int x = 1; x <= columns; x++) {
-        if (columnName.equals(rsmd.getColumnName(x))) {
-            return true;
+        ResultSetMetaData rsmd = rs.getMetaData();
+        int columns = rsmd.getColumnCount();
+        for (int x = 1; x <= columns; x++) {
+            if (columnName.equals(rsmd.getColumnName(x))) {
+                return true;
+            }
         }
+        return false;
     }
-    return false;
-}
 }

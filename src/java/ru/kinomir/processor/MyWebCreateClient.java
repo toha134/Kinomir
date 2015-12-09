@@ -152,7 +152,7 @@ public class MyWebCreateClient extends AbstractRequestProcessor {
             if (rs != null && SqlUtils.hasColumn(rs, "ErrorDescription")) {
                 throw new SQLException(rs.getString("ErrorDescription"), rs.getString("Error"), ex);
             } else {
-                throw new DataException("1", "No data", ex);
+                throw new DataException("1", "Unknown error", ex);
             }
         } catch (UnsupportedEncodingException ex) {
             throw new DataException("1", "Wrong data", ex);

@@ -13,7 +13,6 @@ import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
 import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.datalayer.dto.PasswordRestoreResult;
-import ru.kinomir.queue.QueueSender;
 import ru.kinomir.queue.data.RestoreData;
 import ru.kinomir.tools.StringTools;
 
@@ -32,6 +31,11 @@ public class PasswordRestoreProcessor extends AbstractRequestProcessor {
         el.addAttribute("result", res.getResult());
         el.addAttribute("EmailCode", res.getEmailCode());
         el.addAttribute("CellularCode", res.getCellularCode());
+        el.addAttribute("Email", res.getEmail());
+        el.addAttribute("Cellular", res.getCellular());
+        el.addAttribute("NewPassword", res.getNewPassword());
+        el.addAttribute("Error", res.getError());
+        el.addAttribute("ErrorDescription", res.getErrorDescription());
     }
 
     @Override
@@ -50,12 +54,16 @@ public class PasswordRestoreProcessor extends AbstractRequestProcessor {
                     RestoreData data = new RestoreData();
                     data.setAction("update_email");
                     data.setPassword(res.getEmailCode());
+                    data.setNewPassword(res.getNewPassword());
+                    data.setAddress(res.getEmail());
                     sendToQueue(data, QUEUE_EMAIL);
                 }
                 if (("cellular".equalsIgnoreCase(params.get(KinomirManager.AUTHTYPE)) && !StringTools.isEmpty(res.getCellularCode())) || !StringTools.isEmpty(res.getCellularCode())) {
                     RestoreData data = new RestoreData();
                     data.setAction("update_cellular");
                     data.setPassword(res.getCellularCode());
+                    data.setNewPassword(res.getNewPassword());
+                    data.setAddress(res.getCellular());
                     sendToQueue(data, QUEUE_SMS);
                 }
             }

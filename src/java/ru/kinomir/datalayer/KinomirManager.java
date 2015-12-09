@@ -10,6 +10,7 @@ import ru.kinomir.datalayer.dto.OrderInfoDTO;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.InvalidParameterException;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,7 +26,9 @@ import ru.kinomir.datalayer.dto.BuildingData;
 import ru.kinomir.datalayer.dto.ClientData;
 import ru.kinomir.datalayer.dto.ClientInfoDTO;
 import ru.kinomir.datalayer.dto.ClientInfoData;
+import ru.kinomir.datalayer.dto.ContVerifyResult;
 import ru.kinomir.datalayer.dto.CreateOrderData;
+import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.datalayer.dto.DateListData;
 import ru.kinomir.datalayer.dto.GenreData;
 import ru.kinomir.datalayer.dto.HallData;
@@ -182,7 +185,7 @@ public class KinomirManager {
                 sp.setLong(5, Long.parseLong(params.get(IDUSER)));
             }
             if (params.get(TOKEN) != null) {
-                Long idClient = getCliectIdByToken(conn, params);
+                Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
                     params.put(IDCLIENT, idClient.toString());
                 }
@@ -215,7 +218,7 @@ public class KinomirManager {
         try {
             sp = conn.prepareStatement("exec dbo.Wga_CreateOrder ?, ?, ?, ?");
             if (params.get(TOKEN) != null) {
-                Long idClient = getCliectIdByToken(conn, params);
+                Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
                     params.put(IDCLIENT, idClient.toString());
                 }
@@ -264,7 +267,7 @@ public class KinomirManager {
                 sp.setLong(1, Long.parseLong(params.get(IDPERFORMANCE)));
             }
             if (params.get(TOKEN) != null) {
-                Long idClient = getCliectIdByToken(conn, params);
+                Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
                     params.put(IDCLIENT, idClient.toString());
                 }
@@ -298,7 +301,7 @@ public class KinomirManager {
                 sp.setNull(1, java.sql.Types.VARCHAR);
             }
             if (params.get(TOKEN) != null) {
-                Long idClient = getCliectIdByToken(conn, params);
+                Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
                     params.put(IDCLIENT, idClient.toString());
                 }
@@ -349,7 +352,7 @@ public class KinomirManager {
                 sp.setNull(1, java.sql.Types.VARCHAR);
             }
             if (params.get(TOKEN) != null) {
-                Long idClient = getCliectIdByToken(conn, params);
+                Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
                     params.put(IDCLIENT, idClient.toString());
                 }
@@ -401,7 +404,7 @@ public class KinomirManager {
                 sp.setNull(2, java.sql.Types.INTEGER);
             }
             if (params.get(TOKEN) != null) {
-                Long idClient = getCliectIdByToken(conn, params);
+                Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
                     params.put(IDCLIENT, idClient.toString());
                 }
@@ -430,7 +433,7 @@ public class KinomirManager {
         ResultSet rs = null;
         try {
             if (params.get(TOKEN) != null) {
-                Long idClient = getCliectIdByToken(conn, params);
+                Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
                     params.put(IDCLIENT, idClient.toString());
                 }
@@ -456,7 +459,7 @@ public class KinomirManager {
         ResultSet rs = null;
         try {
             if (params.get(TOKEN) != null) {
-                Long idClient = getCliectIdByToken(conn, params);
+                Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
                     params.put(IDCLIENT, idClient.toString());
                 }
@@ -525,7 +528,7 @@ public class KinomirManager {
                 sp.setNull(2, java.sql.Types.INTEGER);
             }
             if (params.get(TOKEN) != null) {
-                Long idClient = getCliectIdByToken(conn, params);
+                Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
                     params.put(IDCLIENT, idClient.toString());
                 }
@@ -787,7 +790,7 @@ public class KinomirManager {
         ResultSet rs = null;
         try {
             if (params.get(TOKEN) != null) {
-                Long idClient = getCliectIdByToken(conn, params);
+                Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
                     params.put(IDCLIENT, idClient.toString());
                 }
@@ -1116,28 +1119,31 @@ public class KinomirManager {
         }
     }
 
-    public static Long getCliectIdByToken(Connection conn, Map<String, String> params) throws SQLException, DataException {
-        PreparedStatement sp = null;
+    public static Long getClientIdByToken(Connection conn, Map<String, String> params) throws SQLException, DataException {
+        CallableStatement sp = null;
         ResultSet rs = null;
         try {
-            sp = conn.prepareStatement("exec dbo.MyWeb_GetClientIdByToken ?");
+            sp = conn.prepareCall("{call dbo.MyWeb_GetClientIdByToken(?, ?)}");
             if (params.get(TOKEN) != null) {
                 sp.setString(1, params.get(TOKEN));
             } else {
                 return null;
             }
-            rs = sp.executeQuery();
-            if (rs != null && rs.next()) {
-                if (SqlUtils.hasColumn(rs, "ClientId")) {
-                    return rs.getLong("ClientId");
+            sp.registerOutParameter(2, java.sql.Types.BIGINT);
+            if (sp.execute()) {
+                rs = sp.getResultSet();
+                if (rs != null && rs.next()) {
+                    if (SqlUtils.hasColumn(rs, "ClientId")) {
+                        return rs.getLong("ClientId");
+                    }
                 }
             }
+            return sp.getLong(2);
         } catch (SQLException ex) {
             throw SqlUtils.convertErrorToException(rs, ex);
         } finally {
             SqlUtils.closeSQLObjects(rs, sp);
         }
-        return null;
     }
 
     public static SimpleErrorData registerPushToken(Connection conn, Map<String, String> params) throws SQLException, DataException {
@@ -1147,7 +1153,7 @@ public class KinomirManager {
             //dbo.MyWeb_RegisterPushToken @IdClient, @DeviceType, @AppType, @AppVersion, @PushToken
             sp = conn.prepareStatement("exec dbo.MyWeb_RegisterPushToken ?, ?, ?, ?, ?");
             if (params.get(TOKEN) != null) {
-                Long idClient = getCliectIdByToken(conn, params);
+                Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
                     params.put(IDCLIENT, idClient.toString());
                 }
@@ -1181,7 +1187,7 @@ public class KinomirManager {
             //dbo.MyWeb_RegisterPushToken @IdClient, @DeviceType, @AppType, @AppVersion, @PushToken
             sp = conn.prepareStatement("exec dbo.MyWeb_DeletePushToken ?, ?");
             if (params.get(TOKEN) != null) {
-                Long idClient = getCliectIdByToken(conn, params);
+                Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
                     params.put(IDCLIENT, idClient.toString());
                 }
@@ -1208,7 +1214,7 @@ public class KinomirManager {
             // @Patronymic, @Cellular, @Birthday, @Login, @Password, @SubsTags, @Agreement
             sp = conn.prepareStatement("exec dbo.UpdateClientAttr ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?");
             if (params.get(TOKEN) != null) {
-                Long idClient = getCliectIdByToken(conn, params);
+                Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
                     params.put(IDCLIENT, idClient.toString());
                 }
@@ -1385,6 +1391,35 @@ public class KinomirManager {
             }
             rs = sp.executeQuery();
             return new PasswordRestoreResult(rs);
+        } finally {
+            SqlUtils.closeSQLObjects(rs, sp);
+        }
+    }
+
+    public static ContVerifyResult contVerify(Connection conn, Map<String, String> params) throws SQLException, DataException {
+        PreparedStatement sp = null;
+        ResultSet rs = null;
+        try {
+            //dbo.MyWeb_RegisterPushToken @IdClient, @DeviceType, @AppType, @AppVersion, @PushToken
+            sp = conn.prepareStatement("exec dbo.MyWeb_ContVerify ?, ?, ?");
+            
+            if (params.get(AUTHTYPE) != null) {
+                sp.setString(1, params.get(AUTHTYPE));
+            } else {
+                sp.setNull(1, java.sql.Types.VARCHAR);
+            }
+            if (params.get(LOGIN) != null) {
+                sp.setString(2, params.get(LOGIN));
+            } else {
+                sp.setNull(2, java.sql.Types.VARCHAR);
+            }
+            if (params.get(PASSWORD) != null) {
+                sp.setString(3, params.get(PASSWORD));
+            } else {
+                sp.setNull(3, java.sql.Types.VARCHAR);
+            }
+            rs = sp.executeQuery();
+            return new ContVerifyResult(rs);
         } finally {
             SqlUtils.closeSQLObjects(rs, sp);
         }

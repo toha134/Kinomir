@@ -12,10 +12,15 @@ import com.google.gson.annotations.SerializedName;
  * @author Антон
  */
 public class RestoreData {
+
     @SerializedName("action")
     String action;
     @SerializedName("password")
     String password;
+    @SerializedName("address")
+    String address;
+    @SerializedName("new_password")
+    String newPassword;
 
     public String getAction() {
         return action;
@@ -32,6 +37,21 @@ public class RestoreData {
     public void setPassword(String password) {
         this.password = password;
     }
-    
-    
+
+    public String getNewPassword() {
+        return newPassword;
+    }
+
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
 }
