@@ -50,7 +50,7 @@ public class PasswordRestoreProcessor extends AbstractRequestProcessor {
     private void sendConfirmCode(Map<String, String> params, PasswordRestoreResult res) {
         if (StringTools.isEmpty(params.get(KinomirManager.PASSWORD))) {
             if (!StringTools.isEmpty(params.get(KinomirManager.AUTHTYPE))) {
-                if (("email".equalsIgnoreCase(params.get(KinomirManager.AUTHTYPE)) && !StringTools.isEmpty(res.getEmailCode())) || !StringTools.isEmpty(res.getEmailCode())) {
+                if (("email".equalsIgnoreCase(params.get(KinomirManager.AUTHTYPE)) && !StringTools.isEmpty(res.getEmailCode())) || (!StringTools.isEmpty(res.getEmailCode()) && !StringTools.isEmpty(res.getEmail()))) {
                     RestoreData data = new RestoreData();
                     data.setAction("update_email");
                     data.setPassword(res.getEmailCode());

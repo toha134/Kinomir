@@ -22,7 +22,8 @@ public class GetClientInfoProcessor extends AbstractRequestProcessor {
 	private final static String[] columns = {"idclient", "iddocument", "F", "I", "O", "address", "phone",
 		"secaddress", "city", "email", "fax", "addstring", "Cellular", "BeginTime", "BarCode", "AccSkidka",
 		"Description", "Description2", "Description3", "Birthday", "Login", "DocName", "OperationLimit", "OrderLife",
-		"OrderLifeBeforePerformance", "IdSchBA", "ShowLimit", "PerformanceLimit", "UseAccSkidka", "DiskountName", "Percent", "isBlocFastSale"};
+		"OrderLifeBeforePerformance", "IdSchBA", "ShowLimit", "PerformanceLimit", "UseAccSkidka", "DiskountName",
+        "Percent", "isBlocFastSale", "Agreement"};
 
 	@Override
 	protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException, DataException {

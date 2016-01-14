@@ -21,8 +21,8 @@ public class OrderInfoDTO {
 
     private static String[] orderColumns = {"idorder", "begintime", "brokerage", "timepayment",
         "orderexpiretime", "orderstate", "orderprice", "orderpaysum", "orderrecalltickets",
-        "saledticketssum", "saledtickets", "ordertotalticketssum", "ordertotaltickets", "description", "idclient"};
-    private static String[] performanceColumns = {"showname", "idperformance", "performancestarttime", "hall", "building"};
+        "saledticketssum", "saledtickets", "ordertotalticketssum", "ordertotaltickets", "description", "idclient", "paymentmethod", "amount", "paydocnum", "attributes", "rrn", "idpaymentmethod"};
+    private static String[] performanceColumns = {"showname", "idperformance", "performancestarttime", "hall", "building", "idbuilding"};
     private static String[] placeColumns = {"idplace", "rownom", "placenom"};
     private List<Map<String, String>> orderInfo = new ArrayList<Map<String, String>>();
 
@@ -34,14 +34,17 @@ public class OrderInfoDTO {
             while (rs.next()) {
                 Map<String, String> orderLine = new HashMap<String, String>();
                 for (String colName : orderColumns) {
-                    orderLine.put(colName, rs.getString(colName));
+                    if (SqlUtils.hasColumn(rs, colName))
+                        orderLine.put(colName, rs.getString(colName));
                 }
                 if (rs.getInt("orderstate") != 3) {
                     for (String colName : performanceColumns) {
-                        orderLine.put(colName, rs.getString(colName));
+                        if (SqlUtils.hasColumn(rs, colName))
+                            orderLine.put(colName, rs.getString(colName));
                     }
                     for (String colName : placeColumns) {
-                        orderLine.put(colName, rs.getString(colName));
+                        if (SqlUtils.hasColumn(rs, colName))
+                            orderLine.put(colName, rs.getString(colName));
                     }
                 }
                 String description = rs.getString("description");

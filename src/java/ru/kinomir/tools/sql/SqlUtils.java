@@ -47,14 +47,18 @@ public class SqlUtils {
         }
     }
 
-    public static boolean hasColumn(ResultSet rs, String columnName) throws SQLException {
+    public static boolean hasColumn(ResultSet rs, String columnName) {
+		try{
         ResultSetMetaData rsmd = rs.getMetaData();
-        int columns = rsmd.getColumnCount();
-        for (int x = 1; x <= columns; x++) {
-            if (columnName.equals(rsmd.getColumnName(x))) {
-                return true;
-            }
-        }
+			int columns = rsmd.getColumnCount();
+			for (int x = 1; x <= columns; x++) {
+				if (columnName.equalsIgnoreCase(rsmd.getColumnLabel(x))) {
+					return true;
+				}
+			} 
+		} catch(SQLException ex){
+			
+		}
         return false;
     }
 }

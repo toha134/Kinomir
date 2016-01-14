@@ -116,12 +116,13 @@
             <param-value>ru.kinomir.processor.MyWebShowInfoProcessor</param-value>
         </init-param>
         <init-param>
-            <param-name>AuthClient</param-name>
+            <param-name>MyWeb_AuthClient</param-name>
             <param-value>ru.kinomir.processor.AuthClientProcessor</param-value>
         </init-param>
-        
-        
-        
+        <init-param>
+            <param-name>cli_tok</param-name>
+            <param-value>ru.kinomir.processor.GetClientInfoByTokenProcessor</param-value>
+        </init-param>
         
         <init-param>    
             <param-name>user_2</param-name>

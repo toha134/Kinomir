@@ -48,6 +48,8 @@ public class Ticket {
     private final String ShowName;
     @SerializedName("agelimit")
     private final String agelimit;
+    @SerializedName("pu_number")
+    private final String pu_number;
     
     private static final SimpleDateFormat outDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
@@ -66,6 +68,7 @@ public class Ticket {
         Place = "";
         ShowName = "";
         agelimit = "";
+        pu_number = "";
     }
 
     public Ticket(ResultSet rs) throws SQLException {
@@ -83,6 +86,7 @@ public class Ticket {
         Place = rs.getString("Place");
         ShowName = rs.getString("ShowName");
         agelimit = rs.getString("agelimit");
+        pu_number = rs.getString("pu_number");
     }
 
     @XmlAttribute(name = "IdTicketOperation")
@@ -155,4 +159,8 @@ public class Ticket {
         return agelimit;
     }
 
+    @XmlAttribute(name = "pu_number")
+    public String getPu_number() {
+        return pu_number;
+    }
 }

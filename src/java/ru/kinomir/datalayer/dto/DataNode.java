@@ -6,12 +6,14 @@
 package ru.kinomir.datalayer.dto;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
  *
  * @author Антон
  */
 @XmlRootElement(name = "data")
+@XmlSeeAlso({ClientInfoData.class, OrderInfoData.class})
 public class DataNode {
     
 }

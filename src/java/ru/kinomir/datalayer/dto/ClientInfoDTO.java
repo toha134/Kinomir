@@ -19,7 +19,8 @@ public class ClientInfoDTO {
     private final static String[] columns = {"idclient", "iddocument", "F", "I", "O", "address", "phone",
         "secaddress", "city", "email", "fax", "addstring", "Cellular", "BeginTime", "BarCode", "AccSkidka",
         "Description", "Description2", "Description3", "Birthday", "Login", "DocName", "OperationLimit", "OrderLife",
-        "OrderLifeBeforePerformance", "IdSchBA", "ShowLimit", "PerformanceLimit", "UseAccSkidka", "DiskountName", "Percent", "isBlocFastSale"};
+        "OrderLifeBeforePerformance", "IdSchBA", "ShowLimit", "PerformanceLimit", "UseAccSkidka", "DiskountName", 
+        "Percent", "isBlocFastSale", "Agreement"};
     Map<String, String> clientInfoValues = new HashMap<String, String>();
 
     public ClientInfoDTO() {

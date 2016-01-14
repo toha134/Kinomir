@@ -15,77 +15,74 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author Антон
  */
-@XmlRootElement(name = "client")
 public class ClientInfo {
 
     @SerializedName("idclient")
-    String idclient;
+    private final String idclient;
     @SerializedName("iddocument")
-    String iddocument;
+    private final String iddocument;
     @SerializedName("F")
-    String F;
+    private final String F;
     @SerializedName("I")
-    String I;
+    private final String I;
     @SerializedName("O")
-    String O;
+    private final String O;
     @SerializedName("address")
-    String address;
+    private final String address;
     @SerializedName("phone")
-    String phone;
+    private final String phone;
     @SerializedName("secaddress")
-    String secaddress;
+    private final String secaddress;
     @SerializedName("city")
-    String city;
+    private final String city;
     @SerializedName("email")
-    String email;
+    private final String email;
     @SerializedName("fax")
-    String fax;
+    private final String fax;
     @SerializedName("addstring")
-    String addstring;
+    private final String addstring;
     @SerializedName("Cellular")
-    String Cellular;
+    private final String Cellular;
     @SerializedName("BeginTime")
-    String BeginTime;
+    private final String BeginTime;
     @SerializedName("BarCode")
-    String BarCode;
+    private final String BarCode;
     @SerializedName("AccScidka")
-    String AccSkidka;
+    private final String AccSkidka;
     @SerializedName("Description")
-    String Description;
+    private final String Description;
     @SerializedName("Description2")
-    String Description2;
+    private final String Description2;
     @SerializedName("Description3")
-    String Description3;
+    private final String Description3;
     @SerializedName("Birthday")
-    String Birthday;
+    private final String Birthday;
     @SerializedName("Login")
-    String Login;
+    private final String Login;
     @SerializedName("DocName")
-    String DocName;
+    private final String DocName;
     @SerializedName("OperationLimit")
-    String OperationLimit;
+    private final String OperationLimit;
     @SerializedName("OrderLife")
-    String OrderLife;
+    private final String OrderLife;
     @SerializedName("OrderLifeBeforePerformance")
-    String OrderLifeBeforePerformance;
+    private final String OrderLifeBeforePerformance;
     @SerializedName("IdSchBA")
-    String IdSchBA;
+    private final String IdSchBA;
     @SerializedName("ShowLimit")
-    String ShowLimit;
+    private final String ShowLimit;
     @SerializedName("PerformanceLimit")
-    String PerformanceLimit;
+    private final String PerformanceLimit;
     @SerializedName("UseAccSkidka")
-    String UseAccSkidka;
+    private final String UseAccSkidka;
     @SerializedName("DiskountName")
-    String DiskountName;
+    private final String DiskountName;
     @SerializedName("Percent")
-    String Percent;
+    private final String Percent;
     @SerializedName("isBlocFastSale")
-    String isBlocFastSale;
-
-    public ClientInfo() {
-
-    }
+    private final String isBlocFastSale;
+    @SerializedName("Agreement")
+    private final String Agreement;
 
     public ClientInfo(ResultSet rs) throws SQLException {
         idclient = rs.getString("idclient");
@@ -120,7 +117,46 @@ public class ClientInfo {
         DiskountName = rs.getString("DiskountName");
         Percent = rs.getString("Percent");
         isBlocFastSale = rs.getString("isBlocFastSale");
+        Agreement = rs.getString("Agreement");
     }
+
+    public ClientInfo() {
+        this.idclient = "";
+        this.iddocument = "";
+        this.F = "";
+        this.I = "";
+        this.O = "";
+        this.address = "";
+        this.phone = "";
+        this.secaddress = "";
+        this.city = "";
+        this.email = "";
+        this.fax = "";
+        this.addstring = "";
+        this.Cellular = "";
+        this.BeginTime = "";
+        this.BarCode = "";
+        this.AccSkidka = "";
+        this.Description = "";
+        this.Description2 = "";
+        this.Description3 = "";
+        this.Birthday = "";
+        this.Login = "";
+        this.DocName = "";
+        this.OperationLimit = "";
+        this.OrderLife = "";
+        this.OrderLifeBeforePerformance = "";
+        this.IdSchBA = "";
+        this.ShowLimit = "";
+        this.PerformanceLimit = "";
+        this.UseAccSkidka = "";
+        this.DiskountName = "";
+        this.Percent = "";
+        this.isBlocFastSale = "";
+        this.Agreement = "";
+    }
+    
+    
 
     @XmlElement(name = "idclient", required = true)
     public String getIdclient() {
@@ -281,4 +317,11 @@ public class ClientInfo {
     public String getIsBlocFastSale() {
         return isBlocFastSale;
     }
+
+    @XmlElement(name = "Agreement")
+    public String getAgreement() {
+        return Agreement;
+    }
+    
+    
 }

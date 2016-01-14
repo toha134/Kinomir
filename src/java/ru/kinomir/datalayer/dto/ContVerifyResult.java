@@ -9,6 +9,7 @@ import com.google.gson.annotations.SerializedName;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import ru.kinomir.processor.DataException;
 import ru.kinomir.tools.sql.SqlUtils;
@@ -19,7 +20,7 @@ import ru.kinomir.tools.sql.SqlUtils;
  */
 @XmlRootElement(name = "data")
 public class ContVerifyResult extends DataNode {
-        @SerializedName("Result")
+    @SerializedName("Result")
     private String Result = "Error";
     @SerializedName("Token")
     private String Token = "";
@@ -38,7 +39,9 @@ public class ContVerifyResult extends DataNode {
             try {
                 if (rs.next()) {
                     Result = rs.getString("Result");
-                    
+                    if (SqlUtils.hasColumn(rs, "Token")) {
+                        Token = rs.getString("Token");
+                    }
                     if (SqlUtils.hasColumn(rs, "Error")) {
                         Error = rs.getString("Error");
                     }
@@ -78,7 +81,7 @@ public class ContVerifyResult extends DataNode {
         this.clientData = clientData;
     }
 
-    @XmlAttribute(name = "clientData")
+    @XmlElement(name = "clientData")
     public DataNode getClientData() {
         return clientData;
     }

@@ -795,12 +795,15 @@ public class KinomirManager {
                     params.put(IDCLIENT, idClient.toString());
                 }
             }
+            sp = conn.prepareStatement("exec dbo.Wga_GetPlaces ?, ?, ?, ?");
             if (params.get(KinomirManager.IDCLIENT) != null) {
-                sp = conn.prepareStatement("exec dbo.Wga_GetPlaces ?, ?, ?, ?");
                 sp.setInt(4, Integer.parseInt(params.get(KinomirManager.IDCLIENT)));
             } else {
-                sp = conn.prepareStatement("exec Wga_GetPlacesNC ?, ?, ?");
+                sp.setNull(4, java.sql.Types.INTEGER);
             }
+            /*} else {
+                sp = conn.prepareStatement("exec Wga_GetPlacesNC ?, ?, ?");
+            }*/
             if (params.get(KinomirManager.IDPERFORMANCE) != null) {
                 sp.setLong(1, Long.parseLong(params.get(KinomirManager.IDPERFORMANCE)));
             }

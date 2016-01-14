@@ -10,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -56,14 +58,13 @@ public class OrderInfoData extends DataNode {
     }
 
     /*protected Order findOrder(String idOrder) {
-        for (Order order : orders) {
-            if (order.getIdorder().equals(idOrder)) {
-                return order;
-            }
-        }
-        return null;
-    }*/
-
+     for (Order order : orders) {
+     if (order.getIdorder().equals(idOrder)) {
+     return order;
+     }
+     }
+     return null;
+     }*/
     @XmlElement(name = "order")
     public Order getOrder() {
         return order;
@@ -106,6 +107,18 @@ public class OrderInfoData extends DataNode {
         private final String idclient;
         @SerializedName("orderpass")
         private final String orderpass;
+        @SerializedName("paymentmethod")
+        private final String paymentmethod;
+        @SerializedName("amount")
+        private final String amount;
+        @SerializedName("paydocnum")
+        private final String paydocnum;
+        @SerializedName("attributes")
+        private final String attributes;
+        @SerializedName("rrn")
+        private final String rrn;
+        @SerializedName("idpaymentmethod")
+        private final String idpaymentmethod;
 
         public Order() {
             idorder = "";
@@ -124,6 +137,12 @@ public class OrderInfoData extends DataNode {
             description = "";
             idclient = "";
             orderpass = "";
+            paymentmethod = "";
+            amount = "";
+            paydocnum = "";
+            attributes = "";
+            rrn = "";
+            idpaymentmethod = "";
         }
 
         public Order(ResultSet rs) throws SQLException {
@@ -142,6 +161,12 @@ public class OrderInfoData extends DataNode {
             ordertotaltickets = rs.getString("ordertotaltickets");
             description = rs.getString("description");
             idclient = rs.getString("idclient");
+            paymentmethod = rs.getString("paymentmethod");
+            amount = rs.getString("amount");
+            paydocnum = rs.getString("paydocnum");
+            attributes = rs.getString("attributes");
+            rrn = rs.getString("rrn");
+            idpaymentmethod = rs.getString("idpaymentmethod");
             String description = rs.getString("description");
             if ((description != null) && (description.length() > 3)) {
                 description = description.substring(description.length() - 4);
@@ -230,6 +255,31 @@ public class OrderInfoData extends DataNode {
             return idorder;
         }
 
+        @XmlAttribute(name = "paymentmethod")
+        public String getPaymentmethod() {
+            return paymentmethod;
+        }
+
+        @XmlAttribute(name = "rrn")
+        public String getRrn() {
+            return rrn;
+        }
+
+        @XmlAttribute(name = "attributes")
+        public String getAttributes() {
+            return attributes;
+        }
+
+        @XmlAttribute(name = "idpaymentmethod")
+        public String getIdpaymentmethod() {
+            return idpaymentmethod;
+        }
+
+        @XmlAttribute(name = "amount")
+        public String getAmount() {
+            return amount;
+        }
+
         private void addPerformance(Performance performance) {
             performances.add(performance);
         }
@@ -266,6 +316,8 @@ public class OrderInfoData extends DataNode {
         private final String hall;
         @SerializedName("building")
         private final String building;
+        @SerializedName("idbuilding")
+        private final String idbuilding;
 
         public Performance() {
             showname = "";
@@ -273,6 +325,7 @@ public class OrderInfoData extends DataNode {
             performancestarttime = "";
             hall = "";
             building = "";
+            idbuilding = "";
         }
 
         public Performance(ResultSet rs) throws SQLException {
@@ -281,7 +334,7 @@ public class OrderInfoData extends DataNode {
             performancestarttime = rs.getString("performancestarttime");
             hall = rs.getString("hall");
             building = rs.getString("building");
-
+            idbuilding = rs.getString("idbuilding");
         }
 
         @XmlAttribute(name = "showname")
@@ -309,6 +362,11 @@ public class OrderInfoData extends DataNode {
             return building;
         }
 
+        @XmlAttribute(name = "idbuilding")
+        public String getidbuilding() {
+            return idbuilding;
+        }
+
         private void addPlace(Place place) {
             places.add(place);
         }
@@ -330,7 +388,7 @@ public class OrderInfoData extends DataNode {
         @SerializedName("placenom")
         private final String placenom;
         /*@SerializedName("price")
-        private final String price;*/
+         private final String price;*/
 
         public Place(ResultSet rs) throws SQLException {
             idplace = rs.getString("idplace");
@@ -363,10 +421,9 @@ public class OrderInfoData extends DataNode {
         }
 
         /*@XmlAttribute(name = "price")
-        public String getPrice() {
-            return price;
-        }*/
-
+         public String getPrice() {
+         return price;
+         }*/
     }
 
 }
