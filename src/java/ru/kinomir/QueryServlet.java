@@ -59,11 +59,11 @@ public class QueryServlet extends HttpServlet {
                 AbstractRequestProcessor processor = (AbstractRequestProcessor) Class.forName(queryProcessor).newInstance();
                 processor.setLogger(logger);
                 try (Connection conn = getConnection(userId)) {
-                    Map<String, String> requestParams = new HashMap<String, String>();
+                    Map<String, String> requestParams = new HashMap<>();
                     for (Object parName : request.getParameterMap().keySet()) {
                         requestParams.put(((String) parName).toUpperCase(), request.getParameter((String) parName));
                     }
-                    Map<String, String> initParams = new HashMap<String, String>();
+                    Map<String, String> initParams = new HashMap<>();
                     Enumeration<String> initPapamsNames = getInitParameterNames();
                     while (initPapamsNames.hasMoreElements()) {
                         String initParamName = initPapamsNames.nextElement();
@@ -84,11 +84,9 @@ public class QueryServlet extends HttpServlet {
             }
             response.setCharacterEncoding("UTF-8");
             response.setContentType("text/" + getFormat(request));
-            PrintWriter out = response.getWriter();
-            try {
+            
+            try (PrintWriter out = response.getWriter()){
                 out.write(answer);
-            } finally {
-                out.close();
             }
 
         } catch (Exception ex) {
@@ -145,7 +143,7 @@ public class QueryServlet extends HttpServlet {
     }// </editor-fold>
 
     private String paramsToString(Map<String, String> requestParams) {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuilder buf = new StringBuilder("[");
         for (String pName : requestParams.keySet()) {
             buf.append("{").append(pName).append(" = ").append(requestParams.get(pName)).append("} ");
         }
