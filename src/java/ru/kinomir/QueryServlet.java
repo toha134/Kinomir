@@ -6,6 +6,7 @@ package ru.kinomir;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.rmi.ServerException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Enumeration;
@@ -57,25 +58,22 @@ public class QueryServlet extends HttpServlet {
                 logger.info("Find processor for " + request.getParameter("sp"));
                 AbstractRequestProcessor processor = (AbstractRequestProcessor) Class.forName(queryProcessor).newInstance();
                 processor.setLogger(logger);
-                Connection conn = getConnection(userId);
-                Map<String, String> requestParams = new HashMap<String, String>();
-                for (Object parName : request.getParameterMap().keySet()) {
-                    requestParams.put(((String) parName).toUpperCase(), request.getParameter((String) parName));
-                }
-                Map<String, String> initParams = new HashMap<String, String>();
-                Enumeration<String> initPapamsNames = getInitParameterNames();
-                while (initPapamsNames.hasMoreElements()) {
-                    String initParamName = initPapamsNames.nextElement();
-                    initParams.put(initParamName, getInitParameter(initParamName));
-                }
-                if (!requestParams.containsKey("IDDOCUMENT")) {
-                    requestParams.put("IDDOCUMENT", getInitParameter("IDDOCUMENT"));
-                }
-                logger.info("Request params: " + paramsToString(requestParams));
-                try {
+                try (Connection conn = getConnection(userId)) {
+                    Map<String, String> requestParams = new HashMap<String, String>();
+                    for (Object parName : request.getParameterMap().keySet()) {
+                        requestParams.put(((String) parName).toUpperCase(), request.getParameter((String) parName));
+                    }
+                    Map<String, String> initParams = new HashMap<String, String>();
+                    Enumeration<String> initPapamsNames = getInitParameterNames();
+                    while (initPapamsNames.hasMoreElements()) {
+                        String initParamName = initPapamsNames.nextElement();
+                        initParams.put(initParamName, getInitParameter(initParamName));
+                    }
+                    if (!requestParams.containsKey("IDDOCUMENT")) {
+                        requestParams.put("IDDOCUMENT", getInitParameter("IDDOCUMENT"));
+                    }
+                    logger.info("Request params: " + paramsToString(requestParams));
                     answer = processor.processQuery(conn, requestParams, initParams);
-                } finally {
-                    conn.close();
                 }
             } else {
                 errorMessage = "No parameter 'sp'";
@@ -95,6 +93,7 @@ public class QueryServlet extends HttpServlet {
 
         } catch (Exception ex) {
             logger.error("Processing error: " + ex.getMessage(), ex);
+            throw new ServerException("Unable process request", ex);
         }
     }
 

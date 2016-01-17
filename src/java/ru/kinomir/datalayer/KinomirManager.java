@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package ru.kinomir.datalayer;
 
 import ru.kinomir.datalayer.dto.OrdersDTO;
@@ -28,7 +24,6 @@ import ru.kinomir.datalayer.dto.ClientInfoDTO;
 import ru.kinomir.datalayer.dto.ClientInfoData;
 import ru.kinomir.datalayer.dto.ContVerifyResult;
 import ru.kinomir.datalayer.dto.CreateOrderData;
-import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.datalayer.dto.DateListData;
 import ru.kinomir.datalayer.dto.GenreData;
 import ru.kinomir.datalayer.dto.HallData;
@@ -82,6 +77,7 @@ public class KinomirManager {
     public static final String ALLPLACES = "ALLPLACES";
     public static final String IDPRICECATEGORY = "IDPRICECATEGORY";
     public static final String EMAIL = "EMAIL";
+    public static final String EMAILNEW = "EMAILNEW";
     public static final String CARDNUM = "CARDNUM";
     public static final String IDUSER = "IDUSER";
     public static final String MARK = "MARK";
@@ -97,6 +93,7 @@ public class KinomirManager {
     public static final String PATRONYMIC = "PATRONYMIC";
     public static final String PHONE = "PHONE";
     public static final String CELLULAR = "CELLULAR";
+    public static final String CELLULARNEW = "CELLULARNEW";
     public static final String CITY = "CITY";
     public static final String BIRTHDAY = "BIRTHDAY";
     public static final String PASSWORD = "PASSWORD";
@@ -144,10 +141,8 @@ public class KinomirManager {
     }
 
     public static OrderInfoData getOrderInfoData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
-        PreparedStatement sp = null;
         ResultSet rs = null;
-        try {
-            sp = conn.prepareStatement("exec dbo.MyWeb_GetOrderInfo ?");
+        try (PreparedStatement sp = conn.prepareStatement("exec dbo.MyWeb_GetOrderInfo ?")) {
             if (params.get(IDORDER) != null) {
                 sp.setInt(1, Integer.parseInt(params.get(IDORDER)));
             }
@@ -160,7 +155,7 @@ public class KinomirManager {
             }
             return new OrderInfoData(rs);
         } finally {
-            SqlUtils.closeSQLObjects(rs, sp);
+            SqlUtils.closeSQLObjects(rs, null);
         }
     }
 
@@ -213,10 +208,7 @@ public class KinomirManager {
     }
 
     public static CreateOrderData createOrder(Connection conn, Map<String, String> params, KinomirLog logger) throws SQLException, InvalidParameterException, DataException {
-        PreparedStatement sp = null;
-        ResultSet rs = null;
-        try {
-            sp = conn.prepareStatement("exec dbo.Wga_CreateOrder ?, ?, ?, ?");
+        try (PreparedStatement sp = conn.prepareStatement("exec dbo.Wga_CreateOrder ?, ?, ?, ?")) {
             if (params.get(TOKEN) != null) {
                 Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
@@ -251,18 +243,15 @@ public class KinomirManager {
             } else {
                 sp.setBoolean(4, false);
             }
-            rs = sp.executeQuery();
-            return new CreateOrderData(rs);
-        } finally {
-            SqlUtils.closeSQLObjects(rs, sp);
+            try (ResultSet rs = sp.executeQuery()) {
+                return new CreateOrderData(rs);
+            }
         }
     }
 
     public static SimpleErrorData dropPlace(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
-        PreparedStatement sp = null;
-        ResultSet rs = null;
-        try {
-            sp = conn.prepareStatement("exec dbo.Wga_DropPlace ?, ?");
+        try (PreparedStatement sp = conn.prepareStatement("exec dbo.Wga_DropPlace ?, ?")) {
+
             if (params.get(IDPERFORMANCE) != null) {
                 sp.setLong(1, Long.parseLong(params.get(IDPERFORMANCE)));
             }
@@ -278,10 +267,9 @@ public class KinomirManager {
             } else {
                 sp.setNull(2, java.sql.Types.INTEGER);
             }
-            rs = sp.executeQuery();
-            return new SimpleErrorData(rs);
-        } finally {
-            SqlUtils.closeSQLObjects(rs, sp);
+            try (ResultSet rs = sp.executeQuery()) {
+                return new SimpleErrorData(rs);
+            }
         }
     }
 
@@ -320,25 +308,21 @@ public class KinomirManager {
     }
 
     public static ClientInfoDTO getClientInfoByToken(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
-        PreparedStatement sp = null;
-        ResultSet rs = null;
-        try {
-            sp = conn.prepareStatement("exec dbo.MyWeb_GetClientInfoByToken ?");
+        try (PreparedStatement sp = conn.prepareStatement("exec dbo.MyWeb_GetClientInfoByToken ?")) {
+
             if (!StringTools.isEmpty(params.get(TOKEN))) {
                 sp.setString(1, params.get(TOKEN));
             } else {
                 throw new DataException("1", "No 'token' param");
             }
-            rs = sp.executeQuery();
-            return new ClientInfoDTO(rs);
-        } finally {
-            SqlUtils.closeSQLObjects(rs, sp);
+            try (ResultSet rs = sp.executeQuery();) {
+                return new ClientInfoDTO(rs);
+            }
         }
     }
 
     public static ClientInfoData getClientInfoData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
         PreparedStatement sp = null;
-        ResultSet rs = null;
         try {
             if (params.get(CARDNUM) == null) {
                 sp = conn.prepareStatement("exec dbo.MyWeb_GetClientInfo ?, ?");
@@ -362,10 +346,11 @@ public class KinomirManager {
             } else {
                 sp.setNull(2, java.sql.Types.INTEGER);
             }
-            rs = sp.executeQuery();
-            return new ClientInfoData(rs);
+            try (ResultSet rs = sp.executeQuery()) {
+                return new ClientInfoData(rs);
+            }
         } finally {
-            SqlUtils.closeSQLObjects(rs, sp);
+            SqlUtils.closeSQLObjects(null, sp);
         }
     }
 
@@ -665,12 +650,169 @@ public class KinomirManager {
         }
     }
 
-    public static NewClientData createClient(Connection conn, Map<String, String> params, DateFormat df) throws SQLException, DataException {
-        PreparedStatement sp = null;
-        ResultSet rs = null;
+    public static SimpleErrorData updateClient(Connection conn, Map<String, String> params, KinomirLog logger, DateFormat df) throws SQLException, DataException {
+        try (PreparedStatement sp = conn.prepareStatement("exec dbo.UpdateClientInfo "
+                + "?, ?, ?, ?, ?, " //IdClient	 IdDocument	 Description	 Description2	 Description3
+                + "?, ?, ?, ?, ?, " // Description4	 AddString	 Phone	 Fax	 Address
+                + "?, ?, ?, ?, ?, " // SecAddress	 City	 IsStopped	 EndTime	 CardState
+                + "?, ?, ?, ?, ?, " //CardDescription	 Email	 EmailNew	 FirstName	 Patronymic	
+                + "?, ?, ?, ?, ?, " // Cellular	 CellularNew	 Birthday	 Login	 Password
+                + "?, ?" //SubsTags	 Agreement 
+        )) {
+            if (params.get(TOKEN) != null) {
+                Long idClient = getClientIdByToken(conn, params);
+                if (idClient != null) {
+                    params.put(IDCLIENT, idClient.toString());
+                }
+            }
+            if (!StringTools.isEmpty(params.get(IDCLIENT))) {
+                sp.setLong(1, Long.parseLong(params.get(IDCLIENT)));
+            } else {
+                sp.setNull(1, java.sql.Types.BIGINT);
+            }
+            if (params.get(IDDOCUMENT) != null) {
+                sp.setInt(2, Integer.parseInt(params.get(IDDOCUMENT)));
+            } else {
+                sp.setNull(2, java.sql.Types.INTEGER);
+            }
+            if (params.get(DESCRIPTION) != null) {
+                sp.setString(3, URLDecoder.decode(params.get(DESCRIPTION), "utf-8"));
+            } else {
+                sp.setNull(3, java.sql.Types.VARCHAR);
+            }
+            if (params.get(DESCRIPTION2) != null) {
+                sp.setString(4, URLDecoder.decode(params.get(DESCRIPTION2), "utf-8"));
+            } else {
+                sp.setNull(4, java.sql.Types.VARCHAR);
+            }
+            if (params.get(DESCRIPTION3) != null) {
+                sp.setString(5, URLDecoder.decode(params.get(DESCRIPTION3), "utf-8"));
+            } else {
+                sp.setNull(5, java.sql.Types.VARCHAR);
+            }
+            if (params.get(DESCRIPTION4) != null) {
+                sp.setString(6, URLDecoder.decode(params.get(DESCRIPTION4), "utf-8"));
+            } else {
+                sp.setNull(6, java.sql.Types.VARCHAR);
+            }
+            if (params.get(ADDSTRING) != null) {
+                sp.setString(7, URLDecoder.decode(params.get(ADDSTRING), "utf-8"));
+            } else {
+                sp.setNull(7, java.sql.Types.VARCHAR);
+            }
+            if (params.get(PHONE) != null) {
+                sp.setString(8, URLDecoder.decode(params.get(PHONE), "utf-8"));
+            } else {
+                sp.setNull(8, java.sql.Types.VARCHAR);
+            }
+            if (params.get(FAX) != null) {
+                sp.setString(9, URLDecoder.decode(params.get(FAX), "utf-8"));
+            } else {
+                sp.setNull(9, java.sql.Types.VARCHAR);
+            }
+            if (params.get(ADDRESS) != null) {
+                sp.setString(10, URLDecoder.decode(params.get(ADDRESS), "utf-8"));
+            } else {
+                sp.setNull(10, java.sql.Types.VARCHAR);
+            }
+            if (params.get(SECADDRESS) != null) {
+                sp.setString(11, URLDecoder.decode(params.get(SECADDRESS), "utf-8"));
+            } else {
+                sp.setNull(11, java.sql.Types.VARCHAR);
+            }
+            if (params.get(CITY) != null) {
+                sp.setString(12, URLDecoder.decode(params.get(CITY), "utf-8"));
+            } else {
+                sp.setNull(12, java.sql.Types.VARCHAR);
+            }
+            if (params.get(ISSTOPPED) != null) {
+                sp.setShort(13, Short.parseShort(params.get(ISSTOPPED)));
+            } else {
+                sp.setNull(13, java.sql.Types.SMALLINT);
+            }
+            setEndTimeParameter(params, sp, df, logger, 14);
+            if (params.get(CARDSTATE) != null) {
+                sp.setShort(15, Short.parseShort(params.get(CARDSTATE)));
+            } else {
+                sp.setNull(15, java.sql.Types.SMALLINT);
+            }
+            if (params.get(CARDDESCRIPTION) != null) {
+                sp.setString(16, URLDecoder.decode(params.get(CARDDESCRIPTION), "utf-8"));
+            } else {
+                sp.setNull(16, java.sql.Types.VARCHAR);
+            }
+            if (params.get(EMAIL) != null) {
+                sp.setString(17, URLDecoder.decode(params.get(EMAIL), "utf-8"));
+            } else {
+                sp.setNull(17, java.sql.Types.VARCHAR);
+            }
+            if (params.get(EMAILNEW) != null) {
+                sp.setString(18, URLDecoder.decode(params.get(EMAILNEW), "utf-8"));
+            } else {
+                sp.setNull(18, java.sql.Types.VARCHAR);
+            }
+            if (params.get(FIRSTNAME) != null) {
+                sp.setString(19, URLDecoder.decode(params.get(FIRSTNAME), "utf-8"));
+            } else {
+                sp.setNull(19, java.sql.Types.VARCHAR);
+            }
+            if (params.get(PATRONYMIC) != null) {
+                sp.setString(20, URLDecoder.decode(params.get(PATRONYMIC), "utf-8"));
+            } else {
+                sp.setNull(20, java.sql.Types.VARCHAR);
+            }
+            if (params.get(CELLULAR) != null) {
+                sp.setString(21, URLDecoder.decode(params.get(CELLULAR), "utf-8"));
+            } else {
+                sp.setNull(21, java.sql.Types.VARCHAR);
+            }
+            if (params.get(CELLULARNEW) != null) {
+                sp.setString(22, URLDecoder.decode(params.get(CELLULARNEW), "utf-8"));
+            } else {
+                sp.setNull(22, java.sql.Types.VARCHAR);
+            }
+            if (params.get(BIRTHDAY) != null) {
+                try {
+                    sp.setTimestamp(23, new Timestamp(df.parse(params.get(BIRTHDAY)).getTime()));
+                } catch (ParseException ex) {
+                    sp.setTimestamp(23, new Timestamp(System.currentTimeMillis()));
+                }
 
-        try {
-            sp = conn.prepareStatement("exec dbo.MyWeb_CreateClient ?, ?, ?, ?, ?, ?, ?, ? , ?, ?, ?");
+            } else {
+                sp.setNull(23, java.sql.Types.TIMESTAMP);
+            }
+            if (params.get(LOGIN) != null) {
+                sp.setString(24, URLDecoder.decode(params.get(LOGIN), "utf-8"));
+            } else {
+                sp.setNull(24, java.sql.Types.VARCHAR);
+            }
+            if (params.get(PASSWORD) != null) {
+                sp.setString(25, URLDecoder.decode(params.get(PASSWORD), "utf-8"));
+            } else {
+                sp.setNull(25, java.sql.Types.VARCHAR);
+            }
+            if (params.get(SUBSTAGS) != null) {
+                sp.setString(26, URLDecoder.decode(params.get(SUBSTAGS), "utf-8"));
+            } else {
+                sp.setNull(26, java.sql.Types.VARCHAR);
+            }
+            if (params.get(AGREEMENT) != null) {
+                sp.setString(27, URLDecoder.decode(params.get(AGREEMENT), "utf-8"));
+            } else {
+                sp.setNull(27, java.sql.Types.VARCHAR);
+            }
+
+            try (ResultSet rs = sp.executeQuery()) {
+                return new SimpleErrorData(rs);
+            }
+        } catch (UnsupportedEncodingException ex) {
+            logger.error("Unable convert data", ex);
+            throw new DataException("1", "Wrong data", ex);
+        }
+    }
+
+    public static NewClientData createClient(Connection conn, Map<String, String> params, DateFormat df) throws SQLException, DataException {
+        try (PreparedStatement sp = conn.prepareStatement("exec dbo.MyWeb_CreateClient ?, ?, ?, ?, ?, ?, ?, ? , ?, ?, ?")) {
             if (!StringTools.isEmpty(params.get(IDDOCUMENT))) {
                 sp.setShort(1, Short.parseShort(params.get(IDDOCUMENT)));
             } else {
@@ -730,18 +872,11 @@ public class KinomirManager {
             } else {
                 sp.setNull(11, java.sql.Types.VARCHAR);
             }
-            rs = sp.executeQuery();
-            return new NewClientData(rs);
-        } catch (SQLException ex) {
-            if (rs != null) {
-                throw new SQLException(rs.getString("ErrorDescription"), rs.getString("Error"), ex);
-            } else {
-                throw new DataException("1", "No data", ex);
+            try (ResultSet rs = sp.executeQuery()) {
+                return new NewClientData(rs);
             }
         } catch (UnsupportedEncodingException ex) {
             throw new DataException("1", "Wrong data", ex);
-        } finally {
-            SqlUtils.closeSQLObjects(rs, sp);
         }
     }
 
@@ -802,8 +937,8 @@ public class KinomirManager {
                 sp.setNull(4, java.sql.Types.INTEGER);
             }
             /*} else {
-                sp = conn.prepareStatement("exec Wga_GetPlacesNC ?, ?, ?");
-            }*/
+             sp = conn.prepareStatement("exec Wga_GetPlacesNC ?, ?, ?");
+             }*/
             if (params.get(KinomirManager.IDPERFORMANCE) != null) {
                 sp.setLong(1, Long.parseLong(params.get(KinomirManager.IDPERFORMANCE)));
             }
@@ -1215,7 +1350,7 @@ public class KinomirManager {
             // @IdClient, @IdDocument, @Description, @Description2, @Description3, @Description4, @AddString, @Phone, 
             // @Fax, @Address, @SecAddress, @City, @IsStopped, @EndTime, @CardState, @CardDescription, @Email, @FirstName, 
             // @Patronymic, @Cellular, @Birthday, @Login, @Password, @SubsTags, @Agreement
-            sp = conn.prepareStatement("exec dbo.UpdateClientAttr ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?");
+            sp = conn.prepareStatement("exec dbo.UpdateClientAttr ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?");
             if (params.get(TOKEN) != null) {
                 Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
@@ -1405,7 +1540,7 @@ public class KinomirManager {
         try {
             //dbo.MyWeb_RegisterPushToken @IdClient, @DeviceType, @AppType, @AppVersion, @PushToken
             sp = conn.prepareStatement("exec dbo.MyWeb_ContVerify ?, ?, ?");
-            
+
             if (params.get(AUTHTYPE) != null) {
                 sp.setString(1, params.get(AUTHTYPE));
             } else {

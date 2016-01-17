@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
+import ru.kinomir.datalayer.dto.ClientData;
 import ru.kinomir.datalayer.dto.CreateOrderData;
 import ru.kinomir.datalayer.dto.DataNode;
 import ru.kinomir.queue.QueueSender;
@@ -32,11 +33,19 @@ public class CreateOrderProcessor extends AbstractRequestProcessor {
         item.addAttribute("PlaceCount", orderData.getOrder().getPlaceCount());
         item.addAttribute("Price", orderData.getOrder().getPrice());
         item.addAttribute("MarkUp", orderData.getOrder().getMarkUp());
+        if (params.containsKey("WITHCLIENT") && params.get("WITHCLIENT").equals("1")){
+            ClientData clientData = KinomirManager.getClient(conn, params);
+            orderData.setClientData(clientData);
+        }
         sendToQueues(orderData);
     }
 
     protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, DataException {
         CreateOrderData orderData = KinomirManager.createOrder(conn, params, logger);
+        if (params.containsKey("WITHCLIENT") && params.get("WITHCLIENT").equals("1")){
+            ClientData clientData = KinomirManager.getClient(conn, params);
+            orderData.setClientData(clientData);
+        }
         sendToQueues(orderData);
         return orderData;
     }

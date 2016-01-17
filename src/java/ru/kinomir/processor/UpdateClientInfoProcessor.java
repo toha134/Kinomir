@@ -18,19 +18,19 @@ import ru.kinomir.datalayer.dto.SimpleErrorData;
  *
  * @author Admin
  */
-public class UpdateClientProcessor extends AbstractRequestProcessor {
+public class UpdateClientInfoProcessor extends AbstractRequestProcessor {
 
     @Override
     protected void fillAnswerData(Connection conn, Map<String, String> params, Element el) throws SQLException, InvalidParameterException, DataException {
 
-        SimpleErrorData result = KinomirManager.updateClient(conn, params, logger, df);
+        SimpleErrorData result = KinomirManager.updateClientInfo(conn, params, logger, df);
         el.addAttribute("Error", result.getError());
         el.addAttribute("ErrorDescription", result.getErrorDescription());
     }
 
     @Override
     protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
-        return KinomirManager.updateClient(conn, params, logger, df);
+        return KinomirManager.updateClientInfo(conn, params, logger, df);
     }
     
     

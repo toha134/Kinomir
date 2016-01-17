@@ -6,6 +6,7 @@
 package ru.kinomir.queue.data;
 
 import com.google.gson.annotations.SerializedName;
+import ru.kinomir.datalayer.dto.ClientData;
 
 /**
  *
@@ -23,6 +24,8 @@ public class NewOrderInfo {
     String MarkUp;
     @SerializedName("Description")
     String Description;
+    @SerializedName("Description")
+    ClientData clientData;
 
     public String getPlaceCount() {
         return PlaceCount;
@@ -62,6 +65,14 @@ public class NewOrderInfo {
 
     public void setDescription(String Description) {
         this.Description = Description;
+    }
+
+    public ClientData getClientData() {
+        return clientData;
+    }
+
+    public void setClientData(ClientData clientData) {
+        this.clientData = clientData;
     }
 
 }
