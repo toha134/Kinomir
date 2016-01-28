@@ -40,7 +40,7 @@ public class QueueSender {
         Channel channel = null;
         Connection connection = null;
         try {
-            logger.info("Send message to queue");
+            logger.info("Send message to queue '" + queueName+"'");
             ConnectionFactory factory = new ConnectionFactory();
             if (!StringTools.isEmpty(userName)) {
                 factory.setUsername(userName);
@@ -64,7 +64,7 @@ public class QueueSender {
             channel = connection.createChannel();
             channel.queueDeclare(queueName, true, false, false, null);
             String message = convertToString(data);
-            logger.info("Message to queue: " + message);
+            logger.info("Message text: " + message);
             channel.basicPublish("", queueName, MessageProperties.MINIMAL_PERSISTENT_BASIC, message.getBytes());
             logger.info("Message was sent");
         } catch (Exception ex) {

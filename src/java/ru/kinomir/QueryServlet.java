@@ -55,25 +55,44 @@ public class QueryServlet extends HttpServlet {
             if (request.getParameter("sp") != null) {
                 String queryProcessor = getInitParameter(request.getParameter("sp"));
                 String userId = (String) request.getAttribute("user_id");
-                logger.info("Find processor for " + request.getParameter("sp"));
-                AbstractRequestProcessor processor = (AbstractRequestProcessor) Class.forName(queryProcessor).newInstance();
-                processor.setLogger(logger);
-                try (Connection conn = getConnection(userId)) {
-                    Map<String, String> requestParams = new HashMap<>();
-                    for (Object parName : request.getParameterMap().keySet()) {
-                        requestParams.put(((String) parName).toUpperCase(), request.getParameter((String) parName));
+                String certType = (String) request.getAttribute("certType");
+                boolean accessAllowed = true;
+                if (!StringTools.isEmpty(certType)) {
+                    logger.info("Check access for sp=" + request.getParameter("sp") + " and cert type=" + certType);
+                    String accessTokens = getInitParameter(request.getParameter("sp") + "_access");
+                    if (!StringTools.isEmpty(accessTokens)) {
+                        accessAllowed = false;
+                        for (String token : accessTokens.split(",")) {
+                            if (token.equalsIgnoreCase(certType) || "all".equalsIgnoreCase(token)) {
+                                accessAllowed = true;
+                            }
+                        }
                     }
-                    Map<String, String> initParams = new HashMap<>();
-                    Enumeration<String> initPapamsNames = getInitParameterNames();
-                    while (initPapamsNames.hasMoreElements()) {
-                        String initParamName = initPapamsNames.nextElement();
-                        initParams.put(initParamName, getInitParameter(initParamName));
+                }
+                if (accessAllowed) {
+                    logger.info("Find processor for " + request.getParameter("sp"));
+                    AbstractRequestProcessor processor = (AbstractRequestProcessor) Class.forName(queryProcessor).newInstance();
+                    processor.setLogger(logger);
+                    try (Connection conn = getConnection(userId)) {
+                        Map<String, String> requestParams = new HashMap<>();
+                        for (Object parName : request.getParameterMap().keySet()) {
+                            requestParams.put(((String) parName).toUpperCase(), request.getParameter((String) parName));
+                        }
+                        Map<String, String> initParams = new HashMap<>();
+                        Enumeration<String> initPapamsNames = getInitParameterNames();
+                        while (initPapamsNames.hasMoreElements()) {
+                            String initParamName = initPapamsNames.nextElement();
+                            initParams.put(initParamName, getInitParameter(initParamName));
+                        }
+                        if (!requestParams.containsKey("IDDOCUMENT")) {
+                            requestParams.put("IDDOCUMENT", getInitParameter("IDDOCUMENT"));
+                        }
+                        logger.info("Request params: " + paramsToString(requestParams));
+                        answer = processor.processQuery(conn, requestParams, initParams);
                     }
-                    if (!requestParams.containsKey("IDDOCUMENT")) {
-                        requestParams.put("IDDOCUMENT", getInitParameter("IDDOCUMENT"));
-                    }
-                    logger.info("Request params: " + paramsToString(requestParams));
-                    answer = processor.processQuery(conn, requestParams, initParams);
+                } else {
+                    logger.error("Access denied for client type='" + certType + "' for sp='" + request.getParameter("sp")+"'");
+                    errorMessage = "Access denied";
                 }
             } else {
                 errorMessage = "No parameter 'sp'";
@@ -84,8 +103,8 @@ public class QueryServlet extends HttpServlet {
             }
             response.setCharacterEncoding("UTF-8");
             response.setContentType("text/" + getFormat(request));
-            
-            try (PrintWriter out = response.getWriter()){
+
+            try (PrintWriter out = response.getWriter()) {
                 out.write(answer);
             }
 

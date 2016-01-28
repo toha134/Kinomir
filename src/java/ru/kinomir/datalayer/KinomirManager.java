@@ -1197,7 +1197,7 @@ public class KinomirManager {
         PreparedStatement sp = null;
         ResultSet rs = null;
         try {
-            sp = conn.prepareStatement("exec dbo.MyWeb_GetPerformancesNew ?, ?, ?, ?, ?, ?, ?");
+            sp = conn.prepareStatement("exec dbo.MyWeb_GetPerformancesNew ?, ?, ?, ?, ?, ?, ?, ?");
             if (params.get(KinomirManager.IDBUILDING) != null) {
                 sp.setInt(1, Integer.parseInt(params.get(KinomirManager.IDBUILDING)));
             } else {
@@ -1224,6 +1224,11 @@ public class KinomirManager {
                 sp.setInt(7, Integer.parseInt(params.get(KinomirManager.IDPERFORMANCE)));
             } else {
                 sp.setNull(7, java.sql.Types.INTEGER);
+            }
+            if (params.get(KinomirManager.IDHALL) != null) {
+                sp.setInt(8, Integer.parseInt(params.get(KinomirManager.IDHALL)));
+            } else {
+                sp.setNull(8, java.sql.Types.INTEGER);
             }
             rs = sp.executeQuery();
 
@@ -1350,7 +1355,12 @@ public class KinomirManager {
             // @IdClient, @IdDocument, @Description, @Description2, @Description3, @Description4, @AddString, @Phone, 
             // @Fax, @Address, @SecAddress, @City, @IsStopped, @EndTime, @CardState, @CardDescription, @Email, @FirstName, 
             // @Patronymic, @Cellular, @Birthday, @Login, @Password, @SubsTags, @Agreement
-            sp = conn.prepareStatement("exec dbo.UpdateClientAttr ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?");
+            sp = conn.prepareStatement("exec dbo.UpdateClientAttr "
+                    + "?, ?, ?, ?, ?, "
+                    + "?, ?, ?, ?, ?, "
+                    + "?, ?, ?, ?, ?, "
+                    + "?, ?, ?, ?, ?, "
+                    + "?, ?, ?, ?, ?");
             if (params.get(TOKEN) != null) {
                 Long idClient = getClientIdByToken(conn, params);
                 if (idClient != null) {
@@ -1485,9 +1495,9 @@ public class KinomirManager {
                     sp.setNull(24, java.sql.Types.VARCHAR);
                 }
                 if (params.get(AGREEMENT) != null) {
-                    sp.setString(24, params.get(AGREEMENT));
+                    sp.setString(25, params.get(AGREEMENT));
                 } else {
-                    sp.setNull(24, java.sql.Types.VARCHAR);
+                    sp.setNull(25, java.sql.Types.VARCHAR);
                 }
 
             } catch (UnsupportedEncodingException ex) {

@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  * @author Антон
  */
 @XmlRootElement(name = "data")
-@XmlSeeAlso({ClientInfoData.class, OrderInfoData.class})
+@XmlSeeAlso({ClientInfoData.class})
 public class DataNode {
     
 }

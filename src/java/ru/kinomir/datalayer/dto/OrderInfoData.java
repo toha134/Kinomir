@@ -10,11 +10,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import ru.kinomir.processor.DataException;
 import ru.kinomir.tools.sql.SqlUtils;
 
@@ -71,6 +70,7 @@ public class OrderInfoData extends DataNode {
     }
 
     @XmlRootElement(name = "order")
+    @XmlType(name = "order", namespace = "")
     public static class Order {
 
         @SerializedName("idorder")
@@ -301,6 +301,7 @@ public class OrderInfoData extends DataNode {
     }
 
     @XmlRootElement(name = "performance")
+    @XmlType(name = "order_perf", namespace = "")
     private static class Performance {
 
         @SerializedName("place")
@@ -379,6 +380,7 @@ public class OrderInfoData extends DataNode {
     }
 
     @XmlRootElement(name = "place")
+    @XmlType(name = "order_place", namespace = "")
     private static class Place {
 
         @SerializedName("idplace")

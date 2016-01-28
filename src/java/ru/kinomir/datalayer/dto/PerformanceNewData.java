@@ -259,6 +259,8 @@ public class PerformanceNewData extends DataNode {
         private final String is3d;
         @SerializedName("hfr")
         private final String hfr;
+        @SerializedName("ticketsetrestriction")
+        private final String ticketsetrestriction;
 
         public Performance() {
             idperformance = "";
@@ -267,6 +269,7 @@ public class PerformanceNewData extends DataNode {
             FreePlaces = "";
             is3d = "";
             hfr = "";
+            ticketsetrestriction = "";
         }
 
         public Performance(ResultSet rs) throws SQLException {
@@ -280,6 +283,10 @@ public class PerformanceNewData extends DataNode {
             FreePlaces = Integer.toString(rs.getInt("FreePlaces"));
             is3d = Integer.toString(rs.getInt("ddd"));
             hfr = Integer.toString(rs.getInt("hfr"));
+            if (SqlUtils.hasColumn(rs, "ticketsetrestriction"))
+                ticketsetrestriction = Integer.toString(rs.getInt("ticketsetrestriction"));
+            else
+                ticketsetrestriction = "";
         }
 
         protected void addPrice(Price price) {
@@ -319,6 +326,11 @@ public class PerformanceNewData extends DataNode {
         @XmlAttribute(name = "hfr")
         public String getHfr() {
             return hfr;
+        }
+
+        @XmlAttribute(name = "ticketsetrestriction")
+        public String getTicketsetrestriction() {
+            return ticketsetrestriction;
         }
 
     }

@@ -106,6 +106,8 @@ public class GetPerformanceNewProcessor extends AbstractRequestProcessor {
 					item.addAttribute("FreePlaces", Integer.toString(rs.getInt("FreePlaces")));
 					item.addAttribute("is3d", Integer.toString(rs.getInt("ddd")));
 					item.addAttribute("hfr", Integer.toString(rs.getInt("hfr")));
+                    if (SqlUtils.hasColumn(rs, "ticketsetrestriction"))
+                        item.addAttribute("ticketsetrestriction", Integer.toString(rs.getInt("ticketsetrestriction")));
 				}
 
 				item = item.addElement("price");

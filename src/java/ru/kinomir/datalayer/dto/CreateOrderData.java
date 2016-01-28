@@ -22,7 +22,7 @@ public class CreateOrderData extends DataNode {
     @SerializedName("order")
     private CreateOrderOrder order = null;
     @SerializedName("clientData")
-    private ClientData clientData = null;
+    private ClientInfoData clientData = null;
 
     public CreateOrderData() {
 
@@ -44,11 +44,11 @@ public class CreateOrderData extends DataNode {
     }
 
     @XmlElement(name = "clientData")
-    public ClientData getClientData() {
+    public ClientInfoData getClientData() {
         return clientData;
     }
 
-    public void setClientData(ClientData clientData) {
+    public void setClientData(ClientInfoData clientData) {
         this.clientData = clientData;
     }
 

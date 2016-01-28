@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import ru.kinomir.tools.sql.SqlUtils;
 
 /**
  *
@@ -25,9 +26,11 @@ public class CreateOrderOrder {
     private String price;
     @SerializedName("markUp")
     private String markUp;
-    
-    public CreateOrderOrder(){
-        
+    @SerializedName("Description")
+    private String Description;
+
+    public CreateOrderOrder() {
+
     }
 
     public CreateOrderOrder(ResultSet rs) throws SQLException {
@@ -35,6 +38,11 @@ public class CreateOrderOrder {
         placeCount = rs.getString("PlaceCount");
         price = rs.getString("Price");
         markUp = rs.getString("MarkUp");
+        if (SqlUtils.hasColumn(rs, "Description")) {
+            Description = rs.getString("Description");
+        } else {
+            Description = "";
+        }
     }
 
     @XmlAttribute(name = "idOrder")
@@ -56,4 +64,10 @@ public class CreateOrderOrder {
     public String getMarkUp() {
         return markUp;
     }
+
+    @XmlAttribute(name = "Description")
+    public String getDescription() {
+        return Description;
+    }
+
 }

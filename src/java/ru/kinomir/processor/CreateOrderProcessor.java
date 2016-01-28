@@ -10,10 +10,9 @@ import java.sql.SQLException;
 import java.util.Map;
 import org.dom4j.Element;
 import ru.kinomir.datalayer.KinomirManager;
-import ru.kinomir.datalayer.dto.ClientData;
+import ru.kinomir.datalayer.dto.ClientInfoData;
 import ru.kinomir.datalayer.dto.CreateOrderData;
 import ru.kinomir.datalayer.dto.DataNode;
-import ru.kinomir.queue.QueueSender;
 import ru.kinomir.queue.data.NewOrderInfo;
 import ru.kinomir.queue.data.NewOrderMessage;
 import ru.kinomir.tools.StringTools;
@@ -33,35 +32,50 @@ public class CreateOrderProcessor extends AbstractRequestProcessor {
         item.addAttribute("PlaceCount", orderData.getOrder().getPlaceCount());
         item.addAttribute("Price", orderData.getOrder().getPrice());
         item.addAttribute("MarkUp", orderData.getOrder().getMarkUp());
-        if (params.containsKey("WITHCLIENT") && params.get("WITHCLIENT").equals("1")){
-            ClientData clientData = KinomirManager.getClient(conn, params);
-            orderData.setClientData(clientData);
+        item.addAttribute("Description", orderData.getOrder().getDescription());
+        if ("1".equals(params.get("WITHCLIENT"))) {
+            try {
+                ClientInfoData clientData = KinomirManager.getClientInfoDataByToken(conn, params);
+                orderData.setClientData(clientData);
+            } catch (Exception ex) {
+                logger.error("Unable get client data", ex);
+            }
         }
         sendToQueues(orderData);
     }
 
     protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, DataException {
         CreateOrderData orderData = KinomirManager.createOrder(conn, params, logger);
-        if (params.containsKey("WITHCLIENT") && params.get("WITHCLIENT").equals("1")){
-            ClientData clientData = KinomirManager.getClient(conn, params);
-            orderData.setClientData(clientData);
+        if ("1".equals(params.get("WITHCLIENT"))) {
+            try {
+                ClientInfoData clientData = KinomirManager.getClientInfoDataByToken(conn, params);
+                orderData.setClientData(clientData);
+            } catch (Exception ex) {
+                logger.error("Unable get client data", ex);
+            }
         }
         sendToQueues(orderData);
         return orderData;
     }
 
     private void sendToQueues(CreateOrderData orderData) {
-        if (orderData != null && !StringTools.isEmpty(orderData.getOrder().getIdOrder())) {
-            NewOrderInfo orderInfo = new NewOrderInfo();
-            orderInfo.setDescription("");
-            orderInfo.setIdOrder(orderData.getOrder().getIdOrder());
-            orderInfo.setMarkUp(orderData.getOrder().getMarkUp());
-            orderInfo.setPlaceCount(orderData.getOrder().getPlaceCount());
-            orderInfo.setPrice(orderData.getOrder().getPrice());
-            NewOrderMessage message = new NewOrderMessage();
-            message.getOrder().add(orderInfo);
-            sendToQueue(message, QUEUE_SMS);
-            sendToQueue(message, QUEUE_EMAIL);
+        try {
+            if (orderData != null && !StringTools.isEmpty(orderData.getOrder().getIdOrder())) {
+                NewOrderInfo orderInfo = new NewOrderInfo();
+                orderInfo.setIdOrder(orderData.getOrder().getIdOrder());
+                orderInfo.setMarkUp(orderData.getOrder().getMarkUp());
+                orderInfo.setPlaceCount(orderData.getOrder().getPlaceCount());
+                orderInfo.setPrice(orderData.getOrder().getPrice());
+                orderInfo.setDescription(orderData.getOrder().getDescription());
+                NewOrderMessage message = new NewOrderMessage();
+                message.getOrder().add(orderInfo);
+                message.setClientData(orderData.getClientData());
+                sendToQueue(message, QUEUE_SMS);
+                sendToQueue(message, QUEUE_EMAIL);
+            }
+        } catch (Exception ex) {
+            logger.error("Error while send message to queue: " + ex.getMessage());
+            logger.debug("Error while send message to queue", ex);
         }
     }
 }
