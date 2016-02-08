@@ -45,13 +45,16 @@ public class PrintTicketProcessor extends AbstractRequestProcessor {
             item.addAttribute("Place", ticket.getPlace());
             item.addAttribute("ShowName", ticket.getShowName());
             item.addAttribute("agelimit", ticket.getagelimit());
+            item.addAttribute("pu_number", ticket.getPu_number());
         }
         sendToQueue(tickets, QUEUE_TICKET);
     }
 
     @Override
     protected DataNode getData(Connection conn, Map<String, String> params) throws SQLException, InvalidParameterException, DataException {
-        return KinomirManager.printTicket(conn, params);
+        PrintTicketData data = KinomirManager.printTicket(conn, params);
+        sendToQueue(data, QUEUE_TICKET);
+        return data;
     }
 
 }
